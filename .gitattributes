@@ -1,0 +1,2 @@
+_build/*.html linguist-detectable=false
+*.txt linguist-detectable=false
