@@ -31,3 +31,13 @@
   * This allows filtering which pages include in report.
 * Page Properties Report
   * Mechanism to display in a table format, the key-value pairs of the filtered child pages.
+
+### Reference Content
+
+* html template to specific document: https://stackoverflow.com/questions/13209597/override-html-page-template-for-a-specific-sphinx-document
+* sphinx-tags extension: https://github.com/melissawm/sphinx-tags
+  * https://sphinx-tags.readthedocs.io/en/latest/quickstart.html#usage
+* metadata: https://docutils.sourceforge.io/docs/ref/rst/directives.html#metadata
+* attributes vs fields: http://sphinxsearch.com/forum/view.html?id=9540
+* Sphinx templating primer: https://www.sphinx-doc.org/en/master/development/templating.html#jinja-sphinx-templating-primer
+* variables: https://stackoverflow.com/questions/14774603/sphinx-add-custom-field-variable-to-be-used-in-html-template
