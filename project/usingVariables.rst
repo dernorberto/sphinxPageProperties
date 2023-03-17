@@ -1,0 +1,11 @@
+.. meta::
+   :author: My Company, Inc.
+   :description: Introduction to ...
+   :copyright: Copyright © 2014 My Company, Inc.
+
+:my-variable: my variable's value
+
+.. _introduction:
+
+Introduction to ....
+====================

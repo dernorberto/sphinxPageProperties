@@ -1,0 +1,7 @@
+{%- set my-variable = '' %}
+{%- set my-variable_key = 'my-variable' %}
+{%- if meta is defined %}
+    {%- if my-variable_key in meta.viewkeys() %}
+        {%- set my-variable = meta.get(my-variable_key) %}
+    {%- endif %}
+{%- endif %}
