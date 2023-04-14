@@ -18,12 +18,18 @@ extensions = ["sphinxcontrib.itemlist",
               "sphinx.ext.autosummary",
               "sphinx.ext.viewcode",
               "sphinx.ext.todo",
-              "sphinx_tags"
+              "sphinx_tags",
+              "sphinx_design"
               ]
 
 templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
+exclude_patterns = [
+    "_build",
+    "Thumbs.db",
+    ".DS_Store",
+    "README.md",
+]
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -31,3 +37,9 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 html_theme = 'alabaster'
 html_static_path = ['_static']
+
+## sphinx_tags settings
+tags_create_tags = True
+tags_intro_text = "Tags/Labels"
+tags_create_badges = True
+#tags_badge_colors = "light"

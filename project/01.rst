@@ -1,0 +1,21 @@
+:title: Page 01
+:status: DRAFT
+:author: Norberto Soares
+
+
+Page 01
+=========
+
+Title 02
+---------
+
+
+Title 03
+---------
+
+
+.. topic:: Title of my topic
+
+    So the summary of this topic is...
+    Bla bla bla
+

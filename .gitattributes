@@ -1,2 +1,3 @@
 _build/*.html linguist-detectable=false
 *.txt linguist-detectable=false
+*.doctree linguist-detectable=false

@@ -3,10 +3,10 @@
    :description: Introduction to ...
    :copyright: Copyright © 2014 My Company, Inc.
 
-:my-variable: my variable's value
+:myVar: "Hello world"
 
 .. _introduction:
 
-==================================================
-Introduction to ....
-==================================================
+Testing Variables
+=================
+

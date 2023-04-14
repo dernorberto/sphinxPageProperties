@@ -8,11 +8,13 @@ Welcome to Confluence 2 Sphinx's documentation!
 
 .. toctree::
    :maxdepth: 1
-   :caption: Contents:
+   :caption: Table of Contents
    :glob:
-   :titlesonly:
+   :includehidden:
 
    *
+
+
 
 Indices and tables
 ==================
