@@ -1,0 +1,15 @@
+{% extends "!layout.html" %}
+
+{%- if meta is mapping %}
+    {{ meta.get("myVariableAbove") }}
+    {{ meta.get("myVariableBelow") }}
+{%- endif %}
+
+{% block footer %}
+<p>myVariableAbove: {{ myVariableAbove }}</p>
+<p>myVariableBelow: {{ myVariableBelow }}</p>
+<p>Package URL: {{ package_url }} </p>
+<p>Builder: {{ builder }} </p>
+<p>Title: {{ title }} | Author: {{ author }} | Tags: {{ tags }} | ID: {{ id }} </p>
+{% endblock %}
+
