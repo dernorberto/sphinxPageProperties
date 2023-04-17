@@ -1,11 +1,9 @@
-
-:my-variable: Variable from Child Page 01
+:myAuthor: Norberto Soares
+:myTitle: Child Page 01
+:author: Norberto Soares
+:tags: sphinx, meta, child
+:last_changed: 14.04.2023
 
 Child Page 01
--------------
+=============
 
-.. meta::
-   :id: META_DATA
-   :author: Norberto Soares
-   :tags: sphinx, meta, child
-   :last_changed: 14.04.2023

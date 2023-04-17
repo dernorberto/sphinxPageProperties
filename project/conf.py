@@ -40,17 +40,20 @@ exclude_patterns = [
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
+html_theme = "pydata_sphinx_theme"
 html_theme = 'alabaster'
+html_theme = 'sphinx_rtd_theme'
 html_theme_options = {              # https://alabaster.readthedocs.io/en/latest/customization.html#theme-options
 #    'logo': 'logo.png',
 #    'github_user': 'sphinx-doc',
 #    'github_repo': 'alabaster',
-    'description': 'Norberto trying to replicate Page Properties with Sphinx',
-    'logo': 'ACME.jpg',
-    'github_user': 'dernorberto'
+#    'description': 'Norberto trying to replicate Page Properties with Sphinx',
+#    'logo': 'ACME.jpg',
+#    'github_user': 'dernorberto'
+#    "navbar_start": ["navbar-logo", "version"],
 }
 html_additional_pages = {
-    'contents': 'contents.html'
+#    'contents': 'contents.html'
 }
 
 LANGS = ['en', 'de', 'cn']
@@ -61,7 +64,7 @@ html_context = {
     }
 
 
-# Alabaster customized sidebat templates
+# Alabaster customized sidebar templates
 html_sidebars = {
     '**': [
         'about.html',
@@ -72,8 +75,6 @@ html_sidebars = {
     ]
 }
 
-
-
 html_static_path = ['_static']
 
 ## sphinx_tags settings
@@ -81,3 +82,10 @@ tags_create_tags = True
 tags_intro_text = "Tags/Labels"
 tags_create_badges = True
 #tags_badge_colors = "light"
+
+#variables_to_export = [
+#    "myAuthor",
+#    "myTitle",
+#    "myVariableAbove",
+#    "myVariableBelow",
+#]
