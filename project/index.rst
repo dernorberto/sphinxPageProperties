@@ -13,6 +13,7 @@ Welcome to Confluence 2 Sphinx's documentation!
    :includehidden:
 
    *
+   _tags/tagsindex
 ..
    Notes:
    maxdepth is used to indicates the depth of the tree.

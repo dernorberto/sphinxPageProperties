@@ -24,7 +24,10 @@ author = 'Norberto Soares'
 #              "sphinx_needs",
 
 extensions = [
-    "sphinx.ext.autodoc",
+    'sphinx.ext.autodoc',
+    'sphinx_gitstamp',
+    'sphinx_tags',
+    'sphinx_design',
               ]
 
 templates_path = ['_templates']
@@ -40,9 +43,10 @@ exclude_patterns = [
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = "pydata_sphinx_theme"
 html_theme = 'alabaster'
 html_theme = 'sphinx_rtd_theme'
+html_theme = 'pydata_sphinx_theme'
+html_theme = 'classic'
 html_theme_options = {              # https://alabaster.readthedocs.io/en/latest/customization.html#theme-options
 #    'logo': 'logo.png',
 #    'github_user': 'sphinx-doc',
@@ -52,6 +56,12 @@ html_theme_options = {              # https://alabaster.readthedocs.io/en/latest
 #    'github_user': 'dernorberto'
 #    "navbar_start": ["navbar-logo", "version"],
 }
+
+html_css_files = [
+    'css/page.css',
+]
+
+
 html_additional_pages = {
 #    'contents': 'contents.html'
 }
@@ -89,3 +99,11 @@ tags_create_badges = True
 #    "myVariableAbove",
 #    "myVariableBelow",
 #]
+
+# Date format for git timestamps
+gitstamp_fmt = "%b %d, %Y"
+
+# tags extension
+tags_overview_title = "Site tags"
+tags_create_tags = True
+tags_create_badges = True

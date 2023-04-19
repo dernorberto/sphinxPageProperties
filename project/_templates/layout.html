@@ -3,18 +3,18 @@
 {% block footer %}
 {% if meta is defined and meta is not none and 'myTitle' in meta %}
     {%- set myTitle = meta.get('myTitle') %}
-    {%- set myAuthor = meta.get('myAuthor') %}
     {%- set author = meta.get('author') %}
     {%- set last_changed = meta.get('last_changed') %}
     {%- set tags = meta.get('tags') %}
-    {%- set myVariableAbove = meta.get('myVariableAbove') %}
-    {%- set myVariableBelow = meta.get('myVariableBelow') %}
     {%- set title = meta.get('title') %}
-    {%- set package_url = meta.get('package_url') %}
 {% endif %}
 
 <p>Title: <b>{{ title }}</b> | Author: <b>{{ author }}</b> | Tags: <b>{{ tags }}</b></p>
 <p>myTitle: <b>{{ myTitle }}</b> | myAuthor: <b>{{ myAuthor }}</b></p>
 <p>Sphinx: <b>{{ sphinx_version }}</b> | Alabaster: <b>{{ alabaster_version }}</b></p>
+
+{%- if gitstamp %}
+<p>This page was last updated on <b>{{ gitstamp }}</b>.</p>
+{%- endif %}
 
 {% endblock %}

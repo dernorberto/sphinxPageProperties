@@ -3,6 +3,10 @@
 :author: Norberto Soares
 :tags: sphinx, meta, child
 :last_changed: 14.04.2023
+:status: inprogress
+:pageType: reportChild
 
-Child Page 02
-=============
+.. tags:: typeReportChild, PageProperties
+
+PPR CHILD 02
+===============================
