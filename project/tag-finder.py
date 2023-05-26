@@ -34,7 +34,7 @@ for file_path in all_files:
                     children_with_set_tags.append(f"{file_path}.rst")
 
 # List to store field data
-field_data = []
+field_data = {}
 
 for rst_file_path in children_with_set_tags:
     rst_content = ""
@@ -52,14 +52,23 @@ for rst_file_path in children_with_set_tags:
 
     # Find all field list nodes
     field_list_nodes = doctree.traverse(nodes.field)
-
+    # Add the current file to the dict
+    field_data.update({rst_file_path: {}})
     # Process field lists
     for field_list_node in field_list_nodes:
         field_name = field_list_node.children[0].astext()
         field_value = field_list_node.children[1].astext()
 
-          # Add field data to the list
-        field_data.append({'File': rst_file_path, 'Field': field_name, 'Value': field_value})
+        # I need a data structure like this:
+        # | file | field: Author | field: Title | field: tags | last_changed | pagetype |
+        # so the list would be
+        # [ file01: {myAuthor : author, myTitle: title, myTags: tags} ,
+        #   file02: {myAuthor : author, myTitle: title, myTags: tags} ,
+        # ]
+
+        field_data[rst_file_path].update({field_name:field_value})
 
 # Create a Pandas DataFrame from the field data
 df = pd.DataFrame(field_data)
+
+
