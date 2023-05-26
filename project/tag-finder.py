@@ -71,4 +71,67 @@ for rst_file_path in children_with_set_tags:
 # Create a Pandas DataFrame from the field data
 df = pd.DataFrame(field_data)
 
+# Transposing the table
+df_transposed = df.T
 
+## Write table to RST file
+# chosing which fields to keep in the table
+df_transposed = df_transposed.loc[:,['myTitle','pageType','myAuthor', 'tags', 'last_changed']]
+
+# replace myTitle with a link to the corresponding HTML file
+# Format: `Link text <https://domain.invalid/>`_
+# Example: `Child Page 03 <1-child-03.html>`_
+# current: Child Page 03
+# target: take the header for the column from 'df' and replace the .rst with .html
+## something along these lines:
+#df_transposed['myTitle'] = df_transposed['myTitle'].replace(['Child Page 03'],["`Child Page 03`_"])
+
+footer_links = f"\n"
+for label,content in df.items():
+    content_name = content['myTitle']
+    content_link = f"`{content_name}`_"
+    content_label = label.replace(".rst",".html")
+    df_transposed['myTitle'] = df_transposed['myTitle'].replace([content_name],[content_link])
+    footer_links += f".. _{content_name}: {content_label}\n"
+
+
+# Get the column names and data from the DataFrame
+columns = df_transposed.columns.tolist()
+data = df_transposed.values.tolist()
+
+# Calculate the maximum width of each column
+column_widths = [max(len(str(value)) for value in column) for column in zip(*data)]
+header_widths = [len(str(element)) for element in columns]
+
+# pick the widest between the values or the headers
+counter = 0
+for n in column_widths:
+    if header_widths[counter] > n:
+        column_widths[counter] = header_widths[counter]
+    counter = counter + 1
+
+# Create the RST table header
+table_header = f"+{'+'.join(['-' * (width + 2) for width in column_widths])}+\n"
+table_header += "| " + " | ".join(f"{column.center(width)}" for column, width in zip(columns, column_widths)) + " |\n"
+table_header += f"+{'+'.join(['=' * (width + 2) for width in column_widths])}+\n"
+
+
+# Create the RST table rows
+table_rows = ""
+for row in data:
+    table_rows += "| " + " | ".join(f"{str(value).ljust(width)}" for value, width in zip(row, column_widths)) + " |\n"
+    table_rows += f"+{'+'.join(['-' * (width + 2) for width in column_widths])}+\n"
+
+# Combine the table header and rows
+rst_table = table_header + table_rows + footer_links
+
+print(rst_table)
+
+# Create the .rst file with the table
+with open("page_properties_table.rst", 'w', encoding='utf-8') as file:
+    file.write("""Page Properties Table
+===========================
+
+""")
+    file.write(rst_table)
+    file.close()

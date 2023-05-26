@@ -4,7 +4,7 @@
 :tags: sphinx, meta, child
 :last_changed: 14.04.2023
 :status: inprogress
-:pageType: reportChild
+:pageType: reportChild-NOT
 
 .. tags:: typeReportChild, PageProperties
 

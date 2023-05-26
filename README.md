@@ -1,14 +1,18 @@
 ## Confluence Page Properties feature in Sphinx
 
+### TODOs
+* It needs to be an extension that I can call from the page properties report rst file
+
 ### Status
 
-* Concept is WIP.
-* This repo is meant to:
-  * follow the progress of the idea as I stumble along experiments.
-  * share the progress with interested collaborators.
+* It generates a table based on the field lists from different rst files
+* The items in the `myTitle` column will be linked to the corresponding HTML file
 
 ### Introduction
 
+* This repo is meant to:
+  * follow the progress of the idea as I stumble along experiments.
+  * share the progress with interested collaborators.
 * Page Properties & Page Properties Report are THE power feature in Confluence, it's a bit like AirTables *lite*.
 * Some use cases I use PP & PPR extensively for:
   * Vendor Inventory
@@ -21,32 +25,51 @@
 * we are NOT using metadata, we need to parse the content of the doctree, which means using docutils
 * Depending on the data I want to get, either field names or something else, I need to either pick **docutils** or **sphinx**
 
-### Work in progress
+### HOWTO
 
-* Launch `python3 -i tag-finder.py`
-* variables
-  * **df** = pandas DataFrame
-  * **field_data** = the data put into pandas
-  * **children_with_set_tags** = all docs containing '.. tags::'
-  * **all_files** = all the files in the current sphinx env
+* From the `project` folder, launch `python3 -i tag-finder.py`
+* It will output a file `page_properties_table.rst` that can then be rendered with `make html`
 
+#### Input & Outcome
 
-#### Outcome
+* Input
+  * Several RST files, containing:
+    * the `.. tags::` extension (I think I might remove that)
+    * field lists in common with each other
+  * the structure is similar to:
+
 ```
->>> df
-             File         Field                Value
-0  1-child-03.rst      myAuthor      Norberto Soares
-1  1-child-03.rst       myTitle        Child Page 03
-2  1-child-03.rst          tags  sphinx, meta, child
-3  1-child-03.rst  last_changed           14.04.2023
-4  1-child-03.rst      pageType          reportChild
-5  1-child-02.rst      myAuthor      Norberto Soares
-6  1-child-02.rst       myTitle        Child Page 02
-7  1-child-02.rst          tags  sphinx, meta, child
-8  1-child-02.rst  last_changed           14.04.2023
-9  1-child-02.rst      pageType      reportChild-NOT
+:myAuthor: Norberto Soares
+:myTitle: Child Page 02
+:author: Norberto Soares
+:tags: sphinx, meta, child
+:last_changed: 14.04.2023
+:status: inprogress
+:pageType: reportChild-NOT
+
+.. tags:: typeReportChild, PageProperties
+
+PPR CHILD 02
+===============================
 ```
 
+
+* Output
+```
+Page Properties Table
+===========================
+
++------------------+-----------------+-----------------+---------------------+--------------+
+|     myTitle      |     pageType    |     myAuthor    |         tags        | last_changed |
++==================+=================+=================+=====================+==============+
+| `Child Page 03`_ | reportChild     | Norberto Soares | sphinx, meta, child | 14.04.2023   |
++------------------+-----------------+-----------------+---------------------+--------------+
+| `Child Page 02`_ | reportChild-NOT | Norberto Soares | sphinx, meta, child | 14.04.2023   |
++------------------+-----------------+-----------------+---------------------+--------------+
+
+.. _Child Page 03: 1-child-03.html
+.. _Child Page 02: 1-child-02.html
+```
 
 ### Diagram
 

@@ -50,9 +50,9 @@ exclude_patterns = [
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'alabaster'
-html_theme = 'sphinx_rtd_theme'
 html_theme = 'pydata_sphinx_theme'
 html_theme = 'classic'
+html_theme = 'sphinx_rtd_theme'
 html_theme_options = {              # https://alabaster.readthedocs.io/en/latest/customization.html#theme-options
 #    'logo': 'logo.png',
 #    'github_user': 'sphinx-doc',

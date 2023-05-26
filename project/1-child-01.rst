@@ -6,7 +6,6 @@
 :status: draft
 :pageType: reportChild
 
-.. tags:: typeReportChild, PageProperties
 
 PPR CHILD 01
 ===============================
