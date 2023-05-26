@@ -1,0 +1,1 @@
+.. fieldtable:: path/to/your/file.rst

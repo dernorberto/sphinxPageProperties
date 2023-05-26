@@ -16,6 +16,38 @@
   * Policies/Standards/Procedures
   * Project Tracking
 
+### Some notes
+
+* we are NOT using metadata, we need to parse the content of the doctree, which means using docutils
+* Depending on the data I want to get, either field names or something else, I need to either pick **docutils** or **sphinx**
+
+### Work in progress
+
+* Launch `python3 -i tag-finder.py`
+* variables
+  * **df** = pandas DataFrame
+  * **field_data** = the data put into pandas
+  * **children_with_set_tags** = all docs containing '.. tags::'
+  * **all_files** = all the files in the current sphinx env
+
+
+#### Outcome
+```
+>>> df
+             File         Field                Value
+0  1-child-03.rst      myAuthor      Norberto Soares
+1  1-child-03.rst       myTitle        Child Page 03
+2  1-child-03.rst          tags  sphinx, meta, child
+3  1-child-03.rst  last_changed           14.04.2023
+4  1-child-03.rst      pageType          reportChild
+5  1-child-02.rst      myAuthor      Norberto Soares
+6  1-child-02.rst       myTitle        Child Page 02
+7  1-child-02.rst          tags  sphinx, meta, child
+8  1-child-02.rst  last_changed           14.04.2023
+9  1-child-02.rst      pageType      reportChild-NOT
+```
+
+
 ### Diagram
 
 ```

@@ -1,3 +1,7 @@
+import sys
+sys.path.append('../Extension')
+
+
 # Configuration file for the Sphinx documentation builder.
 #
 # For the full list of built-in configuration values, see the documentation:
@@ -25,9 +29,11 @@ author = 'Norberto Soares'
 
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx_gitstamp',
+#    'sphinx_gitstamp',
     'sphinx_tags',
     'sphinx_design',
+    'custom_extensionv2',
+    'custom_extensionv3',
               ]
 
 templates_path = ['_templates']
