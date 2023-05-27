@@ -1,11 +1,11 @@
 .. meta::
-    :myAuthor: Norberto Soares
-    :myTitle: Child Page 04
+    :my_author: Norberto Soares
+    :mymy_titleTitle: Child Page 04
     :author: Norberto Soares
-    :tags: sphinx, meta, child
+    :my_labels: sphinx, meta, child
     :last_changed: 25.05.2023
-    :status: draft
-    :pageType: reportChild
+    :my_status: draft
+    :my_pagetype: reportChild
 
 PPR CHILD 04
 ===============================

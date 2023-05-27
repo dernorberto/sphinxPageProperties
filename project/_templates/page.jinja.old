@@ -1,8 +1,0 @@
-{%- set myVar = '' %}
-{%- set myVar_key = 'myVar' %}
-{%- if meta is defined %}
-    {%- if myVar_key in meta.viewkeys() %}
-        {%- set myVar = meta.get(myVar_key) %}
-    {%- endif %}
-{%- endif %}
-

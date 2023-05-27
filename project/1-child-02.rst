@@ -1,10 +1,10 @@
-:myAuthor: Norberto Soares
-:myTitle: Child Page 02
+:my_author: Norberto Soares
+:my_title: Child Page 02
 :author: Norberto Soares
-:tags: sphinx, meta, child
+:my_labels: sphinx, meta, child
 :last_changed: 14.04.2023
-:status: inprogress
-:pageType: reportChild-NOT
+:my_status: inprogress
+:my_pagetype: reportChild-NOT
 
 .. tags:: typeReportChild, PageProperties
 

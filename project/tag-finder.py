@@ -18,7 +18,8 @@ all_files = my_env.found_docs
 
 tagstart = ".. tags::"
 tagend = ""
-children_with_set_tags = []
+
+children_with_set_tags = []     # list holding the children docs
 rst_content = ""
 for file_path in all_files:
     with open(f"{file_path}.rst", 'r', encoding='utf-8') as file:
@@ -58,6 +59,7 @@ for rst_file_path in children_with_set_tags:
     for field_list_node in field_list_nodes:
         field_name = field_list_node.children[0].astext()
         field_value = field_list_node.children[1].astext()
+        #print(f"{field_name} = {field_value}")         # troubleshooting help
 
         # I need a data structure like this:
         # | file | field: Author | field: Title | field: tags | last_changed | pagetype |
@@ -76,7 +78,7 @@ df_transposed = df.T
 
 ## Write table to RST file
 # chosing which fields to keep in the table
-df_transposed = df_transposed.loc[:,['myTitle','pageType','myAuthor', 'tags', 'last_changed']]
+df_transposed = df_transposed.loc[:,['my_title','my_pagetype','my_author', 'my_labels', 'last_changed']]
 
 # replace myTitle with a link to the corresponding HTML file
 # Format: `Link text <https://domain.invalid/>`_
@@ -88,10 +90,10 @@ df_transposed = df_transposed.loc[:,['myTitle','pageType','myAuthor', 'tags', 'l
 
 footer_links = f"\n"
 for label,content in df.items():
-    content_name = content['myTitle']
+    content_name = content['my_title']
     content_link = f"`{content_name}`_"
     content_label = label.replace(".rst",".html")
-    df_transposed['myTitle'] = df_transposed['myTitle'].replace([content_name],[content_link])
+    df_transposed['my_title'] = df_transposed['my_title'].replace([content_name],[content_link])
     footer_links += f".. _{content_name}: {content_label}\n"
 
 

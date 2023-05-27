@@ -1,10 +1,9 @@
 :author: Norberto Soares
-:myAuthor: Norberto Soares
-:tags: sphinx, meta, report
+:my_author: Norberto Soares
+:my_labels: sphinx, meta, report
 :last_changed: 14.04.2023
-:myTitle: My Page Properties-like parent page
-:myVariableAbove: Variable from ABOVE Heading on Parent Page
-:pageType: reportParent
+:my_title: My Page Properties-like parent page
+:my_pagetype: reportParent
 
 .. tags:: typeReportParent, PageProperties
 

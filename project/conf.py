@@ -32,8 +32,8 @@ extensions = [
 #    'sphinx_gitstamp',
     'sphinx_tags',
     'sphinx_design',
-    'custom_extensionv2',
-    'custom_extensionv3',
+#    'custom_extensionv2',
+#    'custom_extensionv3',
               ]
 
 templates_path = ['_templates']
@@ -49,10 +49,10 @@ exclude_patterns = [
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'alabaster'
-html_theme = 'pydata_sphinx_theme'
+#html_theme = 'alabaster'
+#html_theme = 'pydata_sphinx_theme'
 html_theme = 'classic'
-html_theme = 'sphinx_rtd_theme'
+#html_theme = 'sphinx_rtd_theme'
 html_theme_options = {              # https://alabaster.readthedocs.io/en/latest/customization.html#theme-options
 #    'logo': 'logo.png',
 #    'github_user': 'sphinx-doc',
@@ -68,48 +68,25 @@ html_css_files = [
 ]
 
 
-html_additional_pages = {
-#    'contents': 'contents.html'
-}
 
-LANGS = ['en', 'de', 'cn']
-
-# getting to use variables
-html_context = {
-    'myVariables': len(LANGS)
-    }
 
 
 # Alabaster customized sidebar templates
-html_sidebars = {
-    '**': [
-        'about.html',
-        'navigation.html',
-        'relations.html',
-        'searchbox.html',
-        'donate.html',
-    ]
-}
+#html_sidebars = {
+#    '**': [
+#        'about.html',
+#        'navigation.html',
+#        'relations.html',
+#        'searchbox.html',
+#        'donate.html',
+#    ]
+#}
 
 html_static_path = ['_static']
 
 ## sphinx_tags settings
-tags_create_tags = True
-tags_intro_text = "Tags/Labels"
-tags_create_badges = True
+#tags_create_tags = True
+#tags_intro_text = "Tags/Labels"
+#tags_create_badges = True
 #tags_badge_colors = "light"
 
-#variables_to_export = [
-#    "myAuthor",
-#    "myTitle",
-#    "myVariableAbove",
-#    "myVariableBelow",
-#]
-
-# Date format for git timestamps
-gitstamp_fmt = "%b %d, %Y"
-
-# tags extension
-tags_overview_title = "Site tags"
-tags_create_tags = True
-tags_create_badges = True
