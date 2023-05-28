@@ -6,7 +6,10 @@
 ### Status
 
 * It generates a table based on the field lists from different rst files
-* The items in the `myTitle` column will be linked to the corresponding HTML file
+* The items in the `my_title` column will be linked to the corresponding HTML file
+* v3: `field-finder.py <label> <label> etc...`: using sphinx to get field lists
+* v2: `tag-finder.py`: using docutils to get sphinx-tags
+* v1: `field-finder-docutils.py`: using docutils to get field lists
 
 ### Introduction
 
@@ -33,19 +36,20 @@
 #### Input & Outcome
 
 * Input
-  * Several RST files, containing:
-    * the `.. tags::` extension (I think I might remove that)
-    * field lists in common with each other
+  * All the ReST files in the current sphinx project.
+  * Will select only those with:
+    * field list `page_type` set to `reportChild`
+    * field list `labels` matching the arguments
   * the structure is similar to:
 
 ```
-:myAuthor: Norberto Soares
-:myTitle: Child Page 02
+:my_author: Norberto Soares
+:my_title: Child Page 02
 :author: Norberto Soares
-:tags: sphinx, meta, child
+:my_labels: sphinx, meta, child
 :last_changed: 14.04.2023
-:status: inprogress
-:pageType: reportChild-NOT
+:my_status: inprogress
+:my_pagetype: reportChild-NOT
 
 .. tags:: typeReportChild, PageProperties
 
@@ -60,7 +64,7 @@ Page Properties Table
 ===========================
 
 +------------------+-----------------+-----------------+---------------------+--------------+
-|     myTitle      |     pageType    |     myAuthor    |         tags        | last_changed |
+|     my_title     |  my_pagetype    |     my_author   |         tags        | last_changed |
 +==================+=================+=================+=====================+==============+
 | `Child Page 03`_ | reportChild     | Norberto Soares | sphinx, meta, child | 14.04.2023   |
 +------------------+-----------------+-----------------+---------------------+--------------+

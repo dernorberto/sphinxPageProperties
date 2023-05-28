@@ -1,14 +1,22 @@
-from docutils.core import publish_doctree
-from docutils import nodes
-from docutils.parsers.rst import Directive
 from sphinx.application import Sphinx
 import pandas as pd
 import os
 import argparse
 
+"""
+Rewritten version of the field-finder.py that does not need docutils and has much less errors.
+
+"""
 parser = argparse.ArgumentParser()
-parser.add_argument("label", type=str,
-                    help="The label to use as a filter")
+parser.add_argument('labels', 
+                    nargs='+', 
+                    help="1 or more labels to use as a filter")
+#parser.add_argument('--columns', 
+#                    type=list, 
+#                    nargs='+',
+#                    help='Columns to display', 
+#                    default=['my_title','my_status','last_changed'],
+#                    required=False)
 args = parser.parse_args()
 
 current_dir = os.getcwd()
@@ -16,8 +24,10 @@ source_dir = current_dir
 build_dir = os.path.join(current_dir,'_build')
 doctree_dir = os.path.join(current_dir,'_doctrees')
 report_field_pagetype = 'reportChild'
-report_field_label = args.label
-#report_field_label = 'it-policy'
+report_field_labels = args.labels
+#report_field_labels = 'it-policy'
+report_columns = ['my_title','my_status','last_changed']
+#report_columns = args.columns
 
 sphinx_overrides = {
         'exclude_patterns': ['_tags/**',
@@ -27,104 +37,32 @@ sphinx_overrides = {
                              ]
     }
 
-class SkipDirective(Directive):
-    has_content = False
-    required_arguments = 0
-    optional_arguments = 0
-
-    def run(self):
-        # Return an empty list to indicate that the directive should be skipped
-        return []
-
-def setup(app):
-    app.add_directive('tags', SkipDirective)
-    app.add_directive('toctree', SkipDirective)
-    app.add_directive('autoclass', SkipDirective)
-    app.add_directive('autofunction', SkipDirective)
-    app.add_directive('automodule', SkipDirective)
-    app.add_directive('autodoc', SkipDirective)
-    app.add_directive('code-block', SkipDirective)
-    app.add_directive('literalinclude', SkipDirective)
-    app.add_directive('image', SkipDirective)
-    app.add_directive('seealso', SkipDirective)
-    app.add_directive('versionadded', SkipDirective)
-    app.add_directive('versionchanged', SkipDirective)
-
 sphinx_app = Sphinx(source_dir,source_dir,build_dir,doctree_dir,'html',freshenv=True,verbosity=0,confoverrides=sphinx_overrides)
-#setup(sphinx_app)      # not running this as I'd like to not depend on this docutils limitation
+sphinx_app.build(False)     # build the app to parse the files and access the metadata
 
-env = sphinx_app.env
-docs_all = sphinx_app.env.found_docs
+docs_all = list(sphinx_app.env.found_docs)      # convert the set into a list
 
 docs_for_pageproperties = []     # list holding the children docs
-
 rst_content = ""
-
-def parse_file_header(arg_file_path):
-    rst_content = ""
-    with open(f"{arg_file_path}.rst", 'r') as file:
-        lines = file.readlines()
-        for line in lines:
-            if line.startswith(':') == False:
-                pass
-            else:
-                rst_content += line
-    try:
-        doctree = publish_doctree(rst_content, settings_overrides={'traceback': True})    
-    except Exception as e:
-        print("Error:", e)
-
-    return(doctree)
 
 # List for Field List dicts
 field_data = {}
 
-def fields_get(arg_file_path,arg_doctree):
-    # Find all field list nodes
-    field_nodes = arg_doctree.traverse(nodes.field)
-    #field_list_nodes = arg_doctree.traverse(nodes.field_list)      # returns empty
-    nodes_list = []
-    nodes_names = []
-    nodes_values = []
-    field_data.update({arg_file_path: {}})
-    for n in field_nodes:   # get all the fields
-        field_name = n.children[0].astext()
-        nodes_names.append(field_name)
-        field_value = n.children[1].astext()
-        nodes_values.append(field_value)
-        nodes_list.append({field_name:field_value})         # append list with key value pair dicts
-        field_data[arg_file_path].update({field_name:field_value})
+# Fill dict with metadata from docs with metadata, will skip empty metadata
+for n in docs_all:
+    field_metadata = sphinx_app.env.metadata[n]
+    if field_metadata != {}:
+        if 'my_pagetype' in field_metadata:
+            if report_field_pagetype in field_metadata['my_pagetype']:
+                if 'my_labels' in field_metadata:
+                    field_list = field_metadata['my_labels'].split(', ')
+                    # check if all elements of report_field_labels are in field_list
+                    if all(element in field_list for element in report_field_labels):
+                        # if True, then add to field_data
+                        field_data.update({n:{}})
+                        field_data[n].update(sphinx_app.env.metadata[n])
 
-
-    if 'my_labels' in nodes_names:           # check the correct my_pagetype
-        my_index = nodes_names.index('my_labels')
-        if report_field_label in nodes_values[my_index]:
-            if 'my_pagetype' in nodes_names:           # check the correct my_pagetype
-                my_index = nodes_names.index('my_pagetype')
-                if report_field_pagetype in nodes_values[my_index]:
-                    docs_for_pageproperties.append(arg_file_path)
-                #else:
-                    #print(f"Did not find reportChild in my_pagetype")
-            #else:
-                #print(f"Did not find 'my_pagetype' in field lists")
-        #else:
-            #print(f"Did not find 'it-policy' in my_labels")
-    #else:
-        #print(f"Did not find 'my_labels' in fields lists")
-
-    if arg_file_path not in docs_for_pageproperties :
-        field_data.pop(arg_file_path)
-            
-""" What I need
-[x] get all docs
-[x] check fields for those we need
-[x] get a list of the docs we need
-[x] get fields from those we need
-"""
-
-for my_doc in docs_all:
-    my_doctree = parse_file_header(my_doc)
-    fields_get(my_doc,my_doctree)
+print(f"There are {len(field_data)} pages that meet the criteria")
 
 # Create a Pandas DataFrame from the field data
 df = pd.DataFrame(field_data)
@@ -134,8 +72,9 @@ df_transposed = df.T
 
 ## Write table to RST file
 # chosing which fields to keep in the table
-df_transposed = df_transposed.loc[:,['my_title','my_status','last_changed']]
+df_transposed = df_transposed.loc[:,report_columns]
 
+print(f"\nThe dataframe:")
 print(f"\n{df_transposed}\n")
 
 footer_links = f"\n"
@@ -175,6 +114,7 @@ for row in data:
 # Combine the table header and rows
 rst_table = table_header + table_rows + footer_links
 
+print(f"\nThe table we are creating:\n")
 print(rst_table)
 
 # Create the .rst file with the table
