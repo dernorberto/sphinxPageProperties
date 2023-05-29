@@ -1,11 +1,16 @@
 ## Confluence Page Properties feature in Sphinx
 
 ### TODOs
-* It needs to be an extension that I can call from the page properties report rst file
+
+- [x] Labels to filter by as an argument
+- [x] Use only Sphinx API to parse content
+- [ ] Turn the script into a Sphinx extension
+- [ ] Replace RST grid table with list-table
+- [ ] Test using `.. meta::` instead of field lists
 
 ### Status
 
-* It generates a table based on the field lists from different rst files
+* It generates an RST grid-table based on the field lists from different rst files
 * The items in the `my_title` column will be linked to the corresponding HTML file
 * v3: `field-finder.py <label> <label> etc...`: using sphinx to get field lists
 * v2: `tag-finder.py`: using docutils to get sphinx-tags
@@ -13,33 +18,33 @@
 
 ### Introduction
 
-* This repo is meant to:
-  * follow the progress of the idea as I stumble along experiments.
-  * share the progress with interested collaborators.
-* Page Properties & Page Properties Report are THE power feature in Confluence, it's a bit like AirTables *lite*.
-* Some use cases I use PP & PPR extensively for:
-  * Vendor Inventory
-  * Service Inventory
-  * Policies/Standards/Procedures
-  * Project Tracking
+* I use Page Properties & Page Properties Report extensively Confluence.
+* While moving some of the documents to Sphinx, I want the same feature.
+* I want it to not have to depend on any additional extension.
 
-### Some notes
+### Some notes about:
 
-* we are NOT using metadata, we need to parse the content of the doctree, which means using docutils
-* Depending on the data I want to get, either field names or something else, I need to either pick **docutils** or **sphinx**
+* field-lists:
+  * Initially used docutils for parsing, but it was too complex.
+  * Currently using Sphinx `<app>.build(False)` and then `<app>.env.metadata` to parse.
+* `.. meta::`:
+  * I was not able to easily parse this information.
+  * It was not part of the docutils doctree.
+* `.. tags::`:
+  * I ended up not wanting to rely on an extension, although it replicates the Confluence labels feature nicely.
 
 ### HOWTO
 
-* From the `project` folder, launch `python3 -i tag-finder.py`
+* From the `project` folder, launch `python3 tag-finder.py <label1> <label2>...`
 * It will output a file `page_properties_table.rst` that can then be rendered with `make html`
 
 #### Input & Outcome
 
 * Input
-  * All the ReST files in the current sphinx project.
-  * Will select only those with:
-    * field list `page_type` set to `reportChild`
-    * field list `labels` matching the arguments
+  * All the ReST files in the current sphinx env.
+  * Documents whose field lists match:
+    * `page_type` set to `reportChild`
+    * `labels` matching the arguments
   * the structure is similar to:
 
 ```
@@ -75,76 +80,6 @@ Page Properties Table
 .. _Child Page 02: 1-child-02.html
 ```
 
-### Diagram
-
-```
-***********************
-## Summary-page-01
-
-Properties Report
------------------
-|===============|============|========|========|
-| Title         | Approved   | owner  | status |
-|===============|============|========|========|
-| Child-page-01 | YES        | john   | active |
-|---------------|------------|--------|--------|
-| Child-page-02 | YES        | mary   | draft  |
-|---------------|------------|--------|--------|
-| Child-page-03 | NO         | john   | draft  |
-|---------------|------------|--------|--------|
-
-***********************
-
-
-***********************
-## Child-page-01
-
-Properties
-----------
-||----------||--------|
-|| Approved || YES    |
-||----------||--------|
-|| owner    || john   |
-||----------||--------|
-|| status   || active |
-||----------||--------|
-
-***********************
-
-
-***********************
-## Child-page-02
-
-Properties
-----------
-||----------||--------|
-|| Approved || YES    |
-||----------||--------|
-|| owner    || mary   |
-||----------||--------|
-|| status   || draft  |
-||----------||--------|
-
-***********************
-
-***********************
-## Child-page-03
-
-Properties
-----------
-||----------||--------|
-|| Approved || NO     |
-||----------||--------|
-|| owner    || john   |
-||----------||--------|
-|| status   || draft  |
-||----------||--------|
-
-***********************
-```
-
-
-
 
 ### Experience being replicated
 
@@ -162,12 +97,3 @@ Properties
 * Page Properties Report
   * Mechanism to display in a table format, the key-value pairs of the filtered child pages.
 
-### Reference Content
-
-* html template to specific document: https://stackoverflow.com/questions/13209597/override-html-page-template-for-a-specific-sphinx-document
-* sphinx-tags extension: https://github.com/melissawm/sphinx-tags
-  * https://sphinx-tags.readthedocs.io/en/latest/quickstart.html#usage
-* metadata: https://docutils.sourceforge.io/docs/ref/rst/directives.html#metadata
-* attributes vs fields: http://sphinxsearch.com/forum/view.html?id=9540
-* Sphinx templating primer: https://www.sphinx-doc.org/en/master/development/templating.html#jinja-sphinx-templating-primer
-* variables: https://stackoverflow.com/questions/14774603/sphinx-add-custom-field-variable-to-be-used-in-html-template
