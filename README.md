@@ -5,7 +5,7 @@
 - [x] Labels to filter by as an argument
 - [x] Use only Sphinx API to parse content
 - [ ] Turn the script into a Sphinx extension
-- [ ] Replace RST grid table with list-table
+- [x] Replace RST grid table with list-table
 - [ ] Test using `.. meta::` instead of field lists
 
 ### Status

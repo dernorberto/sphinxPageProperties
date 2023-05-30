@@ -7,14 +7,15 @@ import argparse
 Rewritten version of the field-finder.py that does not need docutils and has much less errors.
 
 """
+
 parser = argparse.ArgumentParser()
-parser.add_argument('labels', 
-                    nargs='+', 
+parser.add_argument('labels',
+                    nargs='+',
                     help="1 or more labels to use as a filter")
-#parser.add_argument('--columns', 
-#                    type=list, 
+#parser.add_argument('--columns',
+#                    type=list,
 #                    nargs='+',
-#                    help='Columns to display', 
+#                    help='Columns to display',
 #                    default=['my_title','my_status','last_changed'],
 #                    required=False)
 args = parser.parse_args()
@@ -81,7 +82,8 @@ footer_links = f"\n"
 for label,content in df.items():
     content_name = content['my_title']
     content_link = f"`{content_name}`_"
-    content_label = label.replace(".rst",".html")
+    content_label = f"{label}.html"
+    #content_label = label.replace(".rst",".html")
     df_transposed['my_title'] = df_transposed['my_title'].replace([content_name],[content_link])
     footer_links += f".. _{content_name}: {content_label}\n"
 
@@ -100,16 +102,20 @@ for n in column_widths:
         column_widths[counter] = header_widths[counter]
     counter = counter + 1
 
-# Create the RST table header
-table_header = f"+{'+'.join(['-' * (width + 2) for width in column_widths])}+\n"
-table_header += "| " + " | ".join(f"{column.center(width)}" for column, width in zip(columns, column_widths)) + " |\n"
-table_header += f"+{'+'.join(['=' * (width + 2) for width in column_widths])}+\n"
+# Create the RST list-table header
+width_str = ' '.join(str(e) for e in column_widths)
+table_header = f""".. list-table:: Page Properties Report
+   :widths: {width_str}
+   :header-rows: 1
 
-# Create the RST table rows
+"""
+# add the header RST list-table row
+table_header += "   * " + "     ".join(f"- {column}\n" for column in columns)
+
+# Create the RST list-table rows
 table_rows = ""
 for row in data:
-    table_rows += "| " + " | ".join(f"{str(value).ljust(width)}" for value, width in zip(row, column_widths)) + " |\n"
-    table_rows += f"+{'+'.join(['-' * (width + 2) for width in column_widths])}+\n"
+    table_rows += "   * " + "     ".join(f"- {str(value)}\n" for value in row)
 
 # Combine the table header and rows
 rst_table = table_header + table_rows + footer_links
