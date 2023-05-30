@@ -1,6 +1,5 @@
 import sys
-sys.path.append('../Extension')
-
+sys.path.append('_extension')
 
 # Configuration file for the Sphinx documentation builder.
 #
@@ -34,6 +33,7 @@ extensions = [
     'sphinx_design',
 #    'custom_extensionv2',
 #    'custom_extensionv3',
+    'page-properties-report',
               ]
 
 templates_path = ['_templates']
