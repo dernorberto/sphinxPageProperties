@@ -33,7 +33,7 @@ extensions = [
     'sphinx_design',
 #    'custom_extensionv2',
 #    'custom_extensionv3',
-    'page-properties-report',
+    'page_properties_report',
               ]
 
 templates_path = ['_templates']

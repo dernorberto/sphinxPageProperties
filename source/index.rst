@@ -13,7 +13,6 @@ Welcome to Confluence 2 Sphinx's documentation!
    :includehidden:
 
    *
-   _tags/tagsindex
 
 ..
    Notes:
