@@ -1,5 +1,5 @@
 import sys
-sys.path.append('_extension')
+sys.path.append('extension')
 
 # Configuration file for the Sphinx documentation builder.
 #

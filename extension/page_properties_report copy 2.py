@@ -5,8 +5,6 @@ from sphinx.application import Sphinx
 import pandas as pd
 import os
 from sphinx.util import logging
-from dataclasses import make_dataclass
-
 logger = logging.getLogger(__name__)
 
 report_field_pagetype = 'reportChild'
@@ -15,10 +13,9 @@ report_field_labels = ""
 report_columns = ['my_title','my_status','last_changed']
 
 """
-Set to env-updated
+Rewritten version of the field-finder.py that does not need docutils and has much less errors.
 
 """
-
 
 class PagePropertiesReport(SphinxDirective):
 
@@ -161,27 +158,21 @@ def on_08_doctree_read(app, doctree):
     logger.info(f"\nEvent: DOCTREE-READ\n")
     pass
 
-def on_04_env_before_read_docs(app, env, docnames):
-    #Child = make_dataclass('Child', [''])
-    my_fields = []
-    for m in env.metadata:
-        for n in env.metadata[m].keys():
-            if n not in my_fields:
-                my_fields.append(n)
-    Child = make_dataclass('Child', my_fields)
-
-    print(f"All fields used in new data class: {my_fields}")
-    # Position = make_dataclass('Position', ['name', 'lat', 'lon'])
-    return
 
 
 def setup(app):
     app.connect("env-updated", on_10_env_updated)
     app.add_directive('pagepropertiesreport', PagePropertiesReport)
-    app.connect("env-before-read-docs", on_04_env_before_read_docs)        # it only catches the source from previous files
+#    app.connect("env-before-read-docs", on_04_env_before_read_docs)        # it only catches the source from previous files
 #    app.connect("doctree-read", get_field_data)
 #    app.connect("source-read", on_06_source_read)
 #    app.connect("doctree-read", on_08_doctree_read)
+
+    # Create an instance of PagePropertiesData
+    page_properties_data = PagePropertiesData()
+
+    # Connect the data collection handler to the doctree-read event
+    app.connect("doctree-read", page_properties_data.collect_fields)
 
     return {
         'version': '1.0',
@@ -189,4 +180,6 @@ def setup(app):
         'parallel_write_safe': True,
         }
 
+
+################
 
