@@ -1,4 +1,5 @@
 from docutils import nodes
+
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util import logging
 from sphinx.application import Sphinx
@@ -44,10 +45,49 @@ class PagePropertiesReport(SphinxDirective):
 #        print(f"content type = {type(content)}\n")
 #        print(f"content = {field_data}")
 
+        # Create a new node to store the field data
+        data_node = nodes.container()
+        self.state.nested_parse(self.content, self.content_offset, data_node)
+
+        # Add the data node to the document's doctree
+        self.state.document.settings.env.page_properties_data = data_node
+
         paragraph_node = nodes.paragraph(text=f"All docs: {self.env.found_docs}\n")
         #paragraph_node = nodes.paragraph(text=f"All docs: {str(field_data)}\n")       # OK!!!
 
         return [paragraph_node]
+
+    def on_10_env_updated(app, env):
+        logger.info(f"\nEvent: ENV-UPDATED\n")
+        # env.found_docs
+        # env.longtitles
+        # env.metadata[docname]       --> dict?
+
+        for m in env.metadata:
+            field_metadata = env.metadata[m]    # set var to hold metadata
+            if field_metadata != {}:
+                if 'my_pagetype' in field_metadata:
+                    if report_field_pagetype in field_metadata['my_pagetype']:
+                        if 'my_labels' in field_metadata:
+                            field_list = field_metadata['my_labels'].split(', ')
+                            # check if all elements of report_field_labels are in field_list
+                            if all(element in field_list for element in report_field_labels):
+                                # if True, then add to field_data
+                                field_data.update({m:{}})
+                                field_data[m].update(field_metadata)
+                            else:
+                                logger.info(f"report_field list: {field_list}")
+                        else:
+                            logger.info(f"my_labels not present in field_metadata")
+        env.my_data = field_data
+        logger.info(f"There are {len(field_data)} pages that meet the criteria")
+
+        return
+
+
+class TemporaryNode(nodes.Element):
+    pass
+
 
 def create_table(data):
     # Create a Pandas DataFrame from the field data
@@ -131,8 +171,10 @@ def on_10_env_updated(app, env):
                             logger.info(f"report_field list: {field_list}")
                     else:
                         logger.info(f"my_labels not present in field_metadata")
+    env.my_data = field_data
     logger.info(f"There are {len(field_data)} pages that meet the criteria")
-    return (field_data)
+
+    return
 
     #return(field_data)
 
@@ -159,6 +201,13 @@ def on_06_source_read(app, docname, source):
 
 def on_08_doctree_read(app, doctree):
     logger.info(f"\nEvent: DOCTREE-READ\n")
+    # Create and populate the temporary node
+    temporary_node = TemporaryNode()
+    temporary_node['content'] = app.env.docname
+
+    # Insert the temporary node into the document
+    doctree.append(temporary_node)
+
     pass
 
 def on_04_env_before_read_docs(app, env, docnames):
@@ -168,7 +217,8 @@ def on_04_env_before_read_docs(app, env, docnames):
         for n in env.metadata[m].keys():
             if n not in my_fields:
                 my_fields.append(n)
-    Child = make_dataclass('Child', my_fields)
+    #@dataclass
+    #Child = make_dataclass('Child', my_fields)
 
     print(f"All fields used in new data class: {my_fields}")
     # Position = make_dataclass('Position', ['name', 'lat', 'lon'])
@@ -178,10 +228,10 @@ def on_04_env_before_read_docs(app, env, docnames):
 def setup(app):
     app.connect("env-updated", on_10_env_updated)
     app.add_directive('pagepropertiesreport', PagePropertiesReport)
-    app.connect("env-before-read-docs", on_04_env_before_read_docs)        # it only catches the source from previous files
+    #app.connect("env-before-read-docs", on_04_env_before_read_docs)        # it only catches the source from previous files
 #    app.connect("doctree-read", get_field_data)
 #    app.connect("source-read", on_06_source_read)
-#    app.connect("doctree-read", on_08_doctree_read)
+#    app.connect("doctree-read", on_08_doctree_read)            # it's a per doctree execution
 
     return {
         'version': '1.0',
