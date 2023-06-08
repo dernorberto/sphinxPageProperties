@@ -4,19 +4,18 @@ from sphinx.util import logging
 from sphinx.application import Sphinx
 import pandas as pd
 import os
-#from sphinx.util import logging
-#import logging
-
 from sphinx.util import logging
 logger = logging.getLogger(__name__)
+
+report_field_pagetype = 'reportChild'
+field_data = {}
+report_field_labels = []
+report_columns = ['my_title','my_status','last_changed']
 
 """
 Rewritten version of the field-finder.py that does not need docutils and has much less errors.
 
 """
-
-#def run(app):
-#    print(f"app.self = {app.self}")
 
 class PagePropertiesReport(SphinxDirective):
 
@@ -25,8 +24,7 @@ class PagePropertiesReport(SphinxDirective):
 
     def run(self):
 
-        report_field_pagetype = 'reportChild'
-        report_field_labels = self.arguments
+        report_field_labels.append(self.arguments)
 
         sphinx_overrides = {
                 'exclude_patterns': ['_tags/**',
@@ -36,12 +34,18 @@ class PagePropertiesReport(SphinxDirective):
                                     ]
             }
 
-        logger.info(f"self.env.metadata: {self.env.metadata}\n")
-        docs_all = self.env.found_docs
-        paragraph_node = nodes.paragraph(text=f"All docs: {str(docs_all)}\n")       # OK!!!
-        data = get_field_data(self,report_field_labels)
+        #logger.info(f"self.env.metadata: {self.env.metadata}\n")
+        #docs_all = self.env.found_docs
+        #paragraph_node = nodes.paragraph(text=f"All docs: {str(docs_all)}\n")       # OK!!!
+        #data = get_field_data(self, report_field_labels)               # disabled as I want to use doctree-read to read the fields
+        #docs_all = list(self.env.found_docs)
+#        content = {}
+#        content = content.update(field_data)
+#        print(f"content type = {type(content)}\n")
+#        print(f"content = {field_data}")
 
-        docs_all = list(self.env.found_docs)
+        paragraph_node = nodes.paragraph(text=f"All docs: {self.env.found_docs}\n")
+        #paragraph_node = nodes.paragraph(text=f"All docs: {str(field_data)}\n")       # OK!!!
 
         return [paragraph_node]
 
@@ -58,46 +62,45 @@ class PagePropertiesReport(SphinxDirective):
         print(f"Running setup(self)")
         self.app.connect("doctree-read", self.process_metadata)
 
+class GetFieldData():
+    def get_field_data(app, labels):
+        logger.info(f"\nEvent: DOCTREE-READ\n")
+        report_field_labels = labels
+        #logger.info(f"Labels = {report_field_labels}\n")
+        docs_all = list(app.env.found_docs)      # convert the set into a list
 
-def get_field_data(app,labels):
-    report_field_pagetype = 'reportChild'
-    report_field_labels = labels
-    logger.info(f"Labels = {report_field_labels}\n")
-    docs_all = list(app.env.found_docs)      # convert the set into a list
+        docs_for_pageproperties = []     # list holding the children docs
+        rst_content = ""
 
-    docs_for_pageproperties = []     # list holding the children docs
-    rst_content = ""
+        # List for Field List dicts
 
-    # List for Field List dicts
-    field_data = {}
-
-    # Fill dict with metadata from docs with metadata, will skip empty metadata
-    for n in docs_all:
-        field_metadata = app.env.metadata[n]
-        if field_metadata != {}:
-            if 'my_pagetype' in field_metadata:
-                if report_field_pagetype in field_metadata['my_pagetype']:
-                    if 'my_labels' in field_metadata:
-                        field_list = field_metadata['my_labels'].split(', ')
-                        # check if all elements of report_field_labels are in field_list
-                        if all(element in field_list for element in report_field_labels):
-                            # if True, then add to field_data
-                            field_data.update({n:{}})
-                            field_data[n].update(sphinx_app.env.metadata[n])
+        # Fill dict with metadata from docs with metadata, will skip empty metadata
+        for n in docs_all:
+            field_metadata = app.env.metadata[n]
+            if field_metadata != {}:
+                if 'my_pagetype' in field_metadata:
+                    if report_field_pagetype in field_metadata['my_pagetype']:
+                        if 'my_labels' in field_metadata:
+                            field_list = field_metadata['my_labels'].split(', ')
+                            # check if all elements of report_field_labels are in field_list
+                            if all(element in field_list for element in report_field_labels):
+                                # if True, then add to field_data
+                                field_data.update({n:{}})
+                                field_data[n].update(sphinx_app.env.metadata[n])
+                            else:
+                                logger.info(f"report_field list: {field_list}")
                         else:
-                            logger.info(f"report_field list: {field_list}")
-                    else:
-                        logger.info(f"my_labels not present in field_metadata")
+                            logger.info(f"my_labels not present in field_metadata")
 
-    logger.info(f"There are {len(field_data)} pages that meet the criteria")
-    return [field_data]
+        logger.info(f"There are {len(field_data)} pages that meet the criteria")
+        return [field_data]
 
 def print_metadata(app):
     for docname, document in app.env.found_docs:
         metadata = document.metadata
-        logger.info(f"Metadata for document '{docname}':")
-        logger.info(metadata)
-        logger.info("-------------------------")
+        #logger.info(f"Metadata for document '{docname}':")
+        #logger.info(metadata)
+        #logger.info("-------------------------")
 
 
 
@@ -110,7 +113,7 @@ def create_table(data):
 
     ## Write table to RST file
     # chosing which fields to keep in the table
-    report_columns = ['my_title','my_status','last_changed']
+
     df_transposed = df_transposed.loc[:,report_columns]
 
     logger.info(f"\nThe dataframe:")
@@ -159,18 +162,60 @@ def create_table(data):
     rst_table = table_header + table_rows + footer_links
 
     #table_node = nodes.paragraph(text = rst_table)
-    return [rst_table]
+    return(rst_table)
 
+
+def on_04_env_before_read_docs(app, env, docnames):
+    logger.info(f"\nEvent: ENV-BEFORE-READ-DOCS\n")
+    # env.found_docs
+    # env.longtitles
+    # env.metadata[<docname>]       --> dict?
+
+#     for n in docnames:
+#         logger.info(f"File {n} has the content {env.metadata[n]}")
+#     example content:     env.metadata['0-report']['author']
+#     add key for doc dict                            field_data.update({n:{}})
+#     fill dict with values                            field_data[n].update(sphinx_app.env.metadata[n])
+
+    for m in env.metadata:
+        field_metadata = env.metadata[m]    # set var to hold metadata
+        if field_metadata != {}:
+            if 'my_pagetype' in field_metadata:
+                if report_field_pagetype in field_metadata['my_pagetype']:
+                    if 'my_labels' in field_metadata:
+                        field_list = field_metadata['my_labels'].split(', ')
+                        # check if all elements of report_field_labels are in field_list
+                        if all(element in field_list for element in report_field_labels):
+                            # if True, then add to field_data
+                            field_data.update({m:{}})
+                            field_data[m].update(field_metadata)
+                        else:
+                            logger.info(f"report_field list: {field_list}")
+                    else:
+                        logger.info(f"my_labels not present in field_metadata")
+    logger.info(f"There are {len(field_data)} pages that meet the criteria")
+    #return [field_data]
+
+    return(field_data)
+
+def on_06_source_read(app, docname, source):
+    logger.info(f"\nEvent: SOURCE-READ\n")
+    pass
+
+def on_08_doctree_read(app, doctree):
+    logger.info(f"\nEvent: DOCTREE-READ\n")
+    pass
 
 
 def setup(app):
-    #app.connect("builder-inited", print_metadata)
-#    logging.basicConfig(level=logging.DEBUG)
     app.add_directive('pagepropertiesreport', PagePropertiesReport)
-    app.connect("doctree-read", get_field_data)
+    app.connect("env-before-read-docs", on_04_env_before_read_docs)
+#    app.connect("doctree-read", get_field_data)
+#    app.connect("source-read", on_06_source_read)
+#    app.connect("doctree-read", on_08_doctree_read)
 
     return {
         'version': '1.0',
-        'parallel_read_safe': False,
-        'parallel_write_safe': False,
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
         }
