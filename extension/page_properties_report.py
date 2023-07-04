@@ -1,168 +1,114 @@
-from docutils import nodes
+#from docutils import nodes
+from sphinx.util.docutils import nodes
 from sphinx.util.docutils import SphinxDirective
-from sphinx.util import logging
 from sphinx.application import Sphinx
-import pandas as pd
-import os
-from sphinx.util import logging
-from dataclasses import make_dataclass
 
-logger = logging.getLogger(__name__)
+""" STATUS OF THIS FILE AS OF 3-Jul-2023
 
-# variables
+DOING
+=====
+* parsing all .rst field_list
+* collecting all labels based on a hard-coded example of the field to filter by
+* placing the labels inside the field "field_data"
+* the content of the variable "field_data" for when it's being rendered.
+
+NOT DOING
+=========
+* collecting the directive argument to use for the filter
+* placing the content of the storage node instead of the directive
+
+"""
+
 report_field_pagetype = 'reportChild'
 field_data = {}
-report_field_labels = ""
-report_columns = ['my_title','my_status','last_changed']
+report_field_labels = ['it-policy']
 
-"""
-no comments
-
-"""
+# my very simple and initial attempt at setting up a node to store data
+class StorageNode(nodes.Element):
+    pass
 
 class PagePropertiesReport(SphinxDirective):
-
-    has_content = False
+    has_content = True
     required_arguments = 1
 
     def run(self):
-        logger.info(f"\Directive: run\n")
         report_field_labels = self.arguments
 
-        #data_node += self.env.found_docs
-        #self.state.nested_parse(self.content, self.content_offset, data_node)
-
-        # Add the data node to the document's doctree
-        #self.state.document.settings.env.page_properties_data = data_node
-
+        # I want to replace this below with the content I stored in storage_node
         paragraph_node = nodes.paragraph(text=f"All docs: {self.env.found_docs}\n")
-        #paragraph_node = nodes.paragraph(text=f"All docs: {str(field_data)}\n")       # OK!!!
-        print(my_data_node.attributes)
         return [paragraph_node]
 
-def create_table(data):
-    # Create a Pandas DataFrame from the field data
-    df = pd.DataFrame(data)
+    def __repr__(self):
+        return str(self.val)
 
-    # Transposing the table
-    df_transposed = df.T
+def get_docinfo_from_env(app, env):
+    storage_node = StorageNode()
+    for n,m in env.metadata.items():
+        if 'my_pagetype' in m and 'my_labels' in m:
+            if report_field_pagetype in m['my_pagetype']:
+                field_list = m['my_labels'].split(', ')
+                if all(element in field_list for element in report_field_labels):
+                    # if True, then add to field_data
+                    field_data.update({n:{}})
+                    field_data[n].update(m)
+    storage_node.field_data = field_data
+    env.storage_node = storage_node
 
-    ## Write table to RST file
-    # chosing which fields to keep in the table
-
-    df_transposed = df_transposed.loc[:,report_columns]
-
-    logger.info(f"\nThe dataframe:")
-    logger.info(f"\n{df_transposed}\n")
-
-    footer_links = f"\n"
-    for label,content in df.items():
-        content_name = content['my_title']
-        content_link = f"`{content_name}`_"
-        content_label = f"{label}.html"
-        #content_label = label.replace(".rst",".html")
-        df_transposed['my_title'] = df_transposed['my_title'].replace([content_name],[content_link])
-        footer_links += f".. _{content_name}: {content_label}\n"
-
-    # Get the column names and data from the DataFrame
-    columns = df_transposed.columns.tolist()
-    data = df_transposed.values.tolist()
-
-    # Calculate the maximum width of each column
-    column_widths = [max(len(str(value)) for value in column) for column in zip(*data)]
-    header_widths = [len(str(element)) for element in columns]
-
-    # pick the widest between the values or the headers
-    counter = 0
-    for n in column_widths:
-        if header_widths[counter] > n:
-            column_widths[counter] = header_widths[counter]
-        counter = counter + 1
-
-    # Create the RST list-table header
-    width_str = ' '.join(str(e) for e in column_widths)
-    table_header = f""".. list-table:: Page Properties Report
-    :widths: {width_str}
-    :header-rows: 1
-
-    """
-    # add the header RST list-table row
-    table_header += "   * " + "     ".join(f"- {column}\n" for column in columns)
-
-    # Create the RST list-table rows
-    table_rows = ""
-    for row in data:
-        table_rows += "   * " + "     ".join(f"- {str(value)}\n" for value in row)
-
-    # Combine the table header and rows
-    rst_table = table_header + table_rows + footer_links
-
-    #table_node = nodes.paragraph(text = rst_table)
-    return(rst_table)
-
-
-
-def on_04_env_before_read_docs(app, env, docnames):
-    logger.info(f"\nEvent: ENV-BEFORE-READ-DOCS\n")
-    return
-
-def on_06_source_read(app, docname, source):
-    logger.info(f"\nEvent: SOURCE-READ\n")
+def event_04_env_before_read_docs(app, env, docnames):
+    # docname: {docnames} + Event env_before_read_docs
     pass
 
-def on_08_doctree_read(app, doctree):
-    logger.info(f"\nEvent: DOCTREE-READ\n")
+def event_06_source_read(app, docname, source):
+    # docname: {docname} + Event source_read
     pass
 
-class AddNode(nodes.General,nodes.Element):
+def event_08_doctree_read(app, doctree):        # this reads the doctree for every file being processed by #06
+    # doctree: {doctree} + Event doctree_read
     pass
 
-@app.connect('env-updated')
-def on_10_env_updated(app, env):
-    logger.info(f"\nEvent: ENV-UPDATED\n")
-    # env.found_docs
-    # env.longtitles
-    # env.metadata[docname]       --> dict?
-    # Create a new node to store the field data
-    my_data_node = nodes.container()
+def event_10_env_updated(app, env):
+    # env.found_docs: {env.found_docs} + Event env_updated
+    pass
 
+def event_12_env_check_consistency(app, env):
+    # env.found_docs: {env.found_docs} + Event env_check_consistency
+    # the field data obtained from env.storage_node: {env.storage_node.field_data}
+    pass
 
-    for m in env.metadata:
-        field_metadata = env.metadata[m]    # set var to hold metadata
-        if field_metadata != {}:
-            if 'my_pagetype' in field_metadata:
-                if report_field_pagetype in field_metadata['my_pagetype']:
-                    if 'my_labels' in field_metadata:
-                        field_list = field_metadata['my_labels'].split(', ')
-                        # check if all elements of report_field_labels are in field_list
-                        if all(element in field_list for element in report_field_labels):
-                            # if True, then add to field_data
-                            #field_data.update({m:{}})
-                            #field_data[m].update(field_metadata)
-                            my_data_node.attributes.update({m:{}})
-                            my_data_node.attributes[m].update(field_metadata)
-                        else:
-                            logger.info(f"report_field list: {field_list}")
-                    else:
-                        logger.info(f"my_labels not present in field_metadata")
-    env.my_data = field_data
-    logger.info(f"There are {len(field_data)} pages that meet the criteria")
+def event_14_doctree_resolved(app, doctree, docname):
+    # docname: {docname} + Event source_read
+    pass
 
-    return
+def setup(app: Sphinx):
+    # connecting functions to the different core events for testing/learning purposes
+    app.connect("env-before-read-docs", event_04_env_before_read_docs)             # event 04
+    app.connect("source-read", event_06_source_read)             # event 06
+    app.connect("doctree-read", event_08_doctree_read)             # event 08
+    app.connect("env-updated", event_10_env_updated)             # event 10
+    app.connect("env-check-consistency", event_12_env_check_consistency)             # event 12
+    app.connect("doctree-resolved", event_14_doctree_resolved)             # event 14
 
+    # ref from Sviatoslav
+    #
+    ## app.add_node(LabelRequestNode)
+    ## app.add_directive('request-labels', LabelRequestDirective)
+    ## app.connect('env-updated', build_label_to_document_mapping)
+    ## app.connect('doctree-resolved', replace_label_request_nodes_with_doc_refs)
+    #
 
-
-def setup(app):
+    # the directive
     app.add_directive('page_properties_report', PagePropertiesReport)
-    logger.info(f"SETUP: added directive")
 
-    app.connect("env-updated", on_10_env_updated)
-    logger.info(f"SETUP: connected env-updated")
+    # when to parse the documents
+        # doctree-read will process 1 doctree at a time
+        # env-updated will get me the whole env with all doctrees in it
+    # i've decided on env-updated
+    app.connect('env-updated', get_docinfo_from_env)
 
-    #app.connect("env-before-read-docs", on_04_env_before_read_docs)        # it only catches the source from previous files
-#    app.connect("doctree-read", get_field_data)
-#    app.connect("source-read", on_06_source_read)
-#    app.connect("doctree-read", on_08_doctree_read)            # it's a per doctree execution
+    # Disable caching
+    app.config['env_cache'] = False
+    app.config['doctree_cache'] = False
+    app.config['env_purge'] = True
 
     return {
         'version': '1.0',

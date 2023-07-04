@@ -5,6 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Sphinx make clean html",
+            "type": "python",
+            "module": "sphinx",
+            "request": "launch",
+            "command": "source .venv/bin/activate && make clean html",
+            "args": [
+                "source",
+                "build/html",
+            ],
+            "justMyCode": true,
+            "preLaunchTask": "make clean"
+        },
+        {
             "name": "Sphinx Autobuild",
             "type": "python",
             "request": "launch",
@@ -13,7 +26,8 @@
                 "source",
                 "build/html",
             ],
-            "justMyCode": false,
+            "justMyCode": true,
+            "preLaunchTask": "make clean"
         }
     ]
 }
