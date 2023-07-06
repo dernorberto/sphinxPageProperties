@@ -105,7 +105,6 @@ def create_rst_table(dataset):
     # if report_columns is not defined or empty, then it will display all columns.
     report_columns = []
     report_columns = ['my_title','my_status','my_author','last_changed']
-
     # Create a Pandas DataFrame from the field data
     df = pd.DataFrame(dataset)
     # Transposing the table
@@ -125,7 +124,7 @@ def create_rst_table(dataset):
         footer_links += f".. _{content_name}: {content_label}\n"
         #for html but it does NOT WORK
         #df_transposed['my_title'] = df_transposed['my_title'].replace([content_name],"<a href=" + content_label + ">" + content_link + "</a>")
-        #df_transposed['my_title'] = f'<a href="{content_label}">{content_name}</a>'
+        df_transposed['my_title'] = f'`{content_name}`_'
 
     # show me the pandas dataframe during build
 #    print(f"df_transposed:\n{df_transposed}")
@@ -151,11 +150,11 @@ def create_rst_table(dataset):
     :widths: {width_str}
     :header-rows: 1\n\n"""
     # add the header RST list-table row
-    table_header += "   * " + "     ".join(f"- {column}\n" for column in columns)
+    table_header += "    * " + "      ".join(f"- {column}\n" for column in columns)
     # Create the RST list-table rows
     table_rows = ""
     for row in data:
-        table_rows += "   * " + "     ".join(f"- {str(value)}\n" for value in row)
+        table_rows += "    * " + "      ".join(f"- {str(value)}\n" for value in row)
     # Combine the table header, rows and footer with the links
     rst_table = table_header + table_rows + footer_links
 
@@ -163,126 +162,6 @@ def create_rst_table(dataset):
 
     return (rst_table)
 
-def create_table_node(dataset):
-    # alternative: creating a table_node from the pandas dataframe
-    # if report_columns is not defined or empty, then it will display all columns.
-    report_columns = []
-    report_columns = ['my_title','my_status','my_author','last_changed']
-
-    # Create a Pandas DataFrame from the field data
-    df = pd.DataFrame(dataset)
-    # Transposing the table
-    df_transposed = df.T
-    # choosing which fields to keep in the table
-    if "report_columns" in locals() or "report_columns" != []:
-        df_transposed = df_transposed.loc[:,report_columns]
-    # Write as rst list-table
-    # footer_links will contain the refs to the rst links used in the table
-    footer_links = f"\n"
-    # turning my_title into links to the respective doc
-    for label,content in df.items():
-        content_name = content['my_title']
-        content_link = f"`{content_name}`_"
-        content_label = f"{label}.html"
-        #df_transposed['my_title'] = df_transposed['my_title'].replace([content_name],[content_link])
-        footer_links += f".. _{content_name}: {content_label}\n"
-        #for html but it does NOT WORK
-        df_transposed['my_title'] = f'<a href="{content_label}">{content_name}</a>'
-
-    # show me the pandas dataframe during build
-    print(f"\ndf_transposed:\n{df_transposed}")
-    print(f"\ndf:\n{df}")
-    # instead of replacing df with df_transposed
-    df = df_transposed
-
-    # Create a table node and add table rows
-    table_node = nodes.table()
-    tgroup_node = nodes.tgroup(cols=len(df.columns))
-    table_node += tgroup_node
-    # Create column specifications
-    colspec_nodes = []
-    for _ in range(len(df.columns)):
-        colspec_node = nodes.colspec(colwidth=1)
-        colspec_nodes.append(colspec_node)
-    tgroup_node += colspec_nodes
-    # Create table header row
-    thead_node = nodes.thead()
-    row_node = nodes.row()
-    for col_name in df.columns:
-        entry_node = nodes.entry()
-        entry_node += nodes.paragraph(text=col_name)
-        row_node += entry_node
-    thead_node += row_node
-    tgroup_node += thead_node
-    # Create table body rows
-    tbody_node = nodes.tbody()
-    for _, row in df.iterrows():
-        row_node = nodes.row()
-        for _, value in row.items():
-            entry_node = nodes.entry()
-            entry_node += nodes.paragraph(text=str(value))
-            row_node += entry_node
-        tbody_node += row_node
-    tgroup_node += tbody_node
-
-    return(table_node)
-
-def create_html_table(dataset):
-    #
-    # if report_columns is not defined or empty, then it will display all columns.
-    report_columns = []
-    report_columns = ['my_title','my_status','my_author','last_changed']
-
-    # Create a Pandas DataFrame from the field data
-    df = pd.DataFrame(dataset)
-    # Transposing the table
-    df_transposed = df.T
-    # choosing which fields to keep in the table
-    if "report_columns" in locals() or "report_columns" != []:
-        df_transposed = df_transposed.loc[:,report_columns]
-    df = df_transposed
-    # Write as rst list-table
-    # footer_links will contain the refs to the rst links used in the table
-    footer_links = f"\n"
-    for label,content in df.items():
-        content_name = content['my_title']
-        content_link = f"`{content_name}`_"
-        content_label = f"{label}.html"
-        #df_transposed['my_title'] = df_transposed['my_title'].replace([content_name],[content_link])
-        footer_links += f".. _{content_name}: {content_label}\n"
-        #for html but it does NOT WORK
-        #df_transposed['my_title'] = df_transposed['my_title'].replace([content_name],"<a href=" + content_label + ">" + content_link + "</a>")
-        df_transposed['my_title'] = f'<a href="{content_label}">{content_name}</a>'
-
-    # show me the pandas dataframe during build
-    print(df_transposed)
-    # Get the column names and data from the DataFrame
-    columns = df_transposed.columns.tolist()
-    data = df_transposed.values.tolist()
-    # Calculate the maximum width of each column
-    column_widths = [max(len(str(value)) for value in column) for column in zip(*data)]
-    header_widths = [len(str(element)) for element in columns]
-    # pick the widest between the values or the headers
-    counter = 0
-    for n in column_widths:
-        if header_widths[counter] > n:
-            column_widths[counter] = header_widths[counter]
-        counter = counter + 1
-    # Create the RST list-table header
-    width_str = ' '.join(str(e) for e in column_widths)
-    table_header = f"""\n.. list-table:: Page Properties Report
-    :widths: {width_str}
-    :header-rows: 1\n\n"""
-    # add the header RST list-table row
-    table_header += "   * " + "     ".join(f"- {column}\n" for column in columns)
-    # Create the RST list-table rows
-    table_rows = ""
-    for row in data:
-        table_rows += "   * " + "     ".join(f"- {str(value)}\n" for value in row)
-    # Combine the table header, rows and footer with the links
-    rst_table = table_header + table_rows + footer_links
-
-    return (rst_table)
 
 def _make_data_table_for_requested_labels(requested_labels, document_to_filtered_data_mapping, label_to_document_mapping):
     #
@@ -290,16 +169,23 @@ def _make_data_table_for_requested_labels(requested_labels, document_to_filtered
     # 1. the 1st column does not contain links
     # 2. the headers of the list are not included
     #
-    output_format = 'html'
     output_format = 'table_node'
     output_format = 'rst'
+    output_format = 'publish_doctree'
+    output_format = 'publish_string'
+    output_format = 'html'
 
-    if output_format == 'table_node':
-        return [create_table_node(document_to_filtered_data_mapping)]
-    elif output_format == 'rst':
-        return [nodes.section(text = create_rst_table(document_to_filtered_data_mapping))]
-    elif output_format == 'html':
-        return [create_html_table(document_to_filtered_data_mapping)]
+    container = nodes.container()
+
+    raw_html_node = nodes.raw('',str(core.publish_string(source=create_rst_table(document_to_filtered_data_mapping),writer_name='html')), format='html')
+    container += raw_html_node
+
+    html_content = str(core.publish_string(source=create_rst_table(document_to_filtered_data_mapping),writer_name='html'))
+
+    return [html_content]
+    return [container]
+
+
 
 
 def replace_label_request_nodes_with_doc_refs(app, doctree, docname):  # doctree-resolved | event 14
