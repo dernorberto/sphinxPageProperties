@@ -175,15 +175,24 @@ def _make_data_table_for_requested_labels(requested_labels, document_to_filtered
     output_format = 'publish_string'
     output_format = 'html'
 
-    container = nodes.container()
+    rst_content = create_rst_table(document_to_filtered_data_mapping)
+    html_content = core.publish_parts(rst_content, writer_name='html')
+    html_content_body = html_content['html_body']
 
-    raw_html_node = nodes.raw('',str(core.publish_string(source=create_rst_table(document_to_filtered_data_mapping),writer_name='html')), format='html')
-    container += raw_html_node
+    content_doctree = core.publish_doctree(source=rst_content)
+# publish_doctree generates docutils.node.document
 
-    html_content = str(core.publish_string(source=create_rst_table(document_to_filtered_data_mapping),writer_name='html'))
 
-    return [html_content]
-    return [container]
+    # not sure about publisher
+    publisher = core.Publisher()
+    publisher.set_writer = 'html'
+    publisher.writer = 'html'
+    publisher.source = html_content_body
+    #publisher.writer.
+
+    #content_published = core.publish_doctree(html_content_body)
+
+    return (html_content_body)
 
 
 
@@ -235,7 +244,7 @@ def setup(app: Sphinx):
     # app.connect("doctree-read", event_08_doctree_read)             # event 08
     # app.connect("env-updated", event_10_env_updated)             # event 10
     # app.connect("env-check-consistency", event_12_env_check_consistency)             # event 12
-    app.connect("doctree-resolved", event_14_doctree_resolved)             # event 14
+    # app.connect("doctree-resolved", event_14_doctree_resolved)             # event 14
 
     # ref from Sviatoslav
     #
