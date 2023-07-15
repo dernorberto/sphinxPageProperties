@@ -3,9 +3,8 @@ from sphinx.util.docutils import nodes
 from sphinx.util.docutils import SphinxDirective
 from sphinx.application import Sphinx
 import pandas as pd
-
-from docutils import core, nodes
-from docutils.core import publish_doctree
+from docutils import core
+from docutils.core import publish_doctree, publish_parts
 from docutils.parsers.rst import Directive, directives, roles, Parser
 
 """ STATUS OF THIS FILE AS OF 3-Jul-2023
@@ -101,6 +100,89 @@ def get_docinfo_from_env(app, env):  # env-updated | event 10
         label_to_document_mapping[label].add(doc_name)
     env.label_to_document_mapping = label_to_document_mapping
 
+
+def create_table_node(dataset):
+    # if report_columns is not defined or empty, then it will display all columns.
+    report_columns = []
+    report_columns = ['my_title','my_status','my_author','last_changed']
+    # Create a Pandas DataFrame from the field data
+    df = pd.DataFrame(dataset)
+    # Transposing the table
+    df_transposed = df.T
+    # choosing which fields to keep in the table
+    if "report_columns" in locals() or "report_columns" != []:
+        df_transposed = df_transposed.loc[:,report_columns]
+    # Write as rst list-table
+    # footer_links will contain the refs to the rst links used in the table
+    footer_links = f"\n"
+    # turning my_title into links to the respective doc
+    for label,content in df.items():
+        content_name = content['my_title']
+        content_link = f"`{content_name}`_"
+        content_label = f"{label}.html"
+        #df_transposed['my_title'] = df_transposed['my_title'].replace([content_name],[content_link])
+        footer_links += f".. _{content_name}: {content_label}\n"
+        #for html but it does NOT WORK
+        #df_transposed['my_title'] = df_transposed['my_title'].replace([content_name],"<a href=" + content_label + ">" + content_link + "</a>")
+        df_transposed['my_title'] = f'`{content_name}`_'
+        df_transposed['my_link'] = df_transposed.index + ".html"
+
+    # Get the column names and data from the DataFrame
+    columns = df_transposed.columns.tolist()
+    data = df_transposed.values.tolist()
+    # Calculate the maximum width of each column
+    column_widths = [max(len(str(value)) for value in column) for column in zip(*data)]
+    header_widths = [len(str(element)) for element in columns]
+    # pick the widest between the values or the headers
+    counter = 0
+    for n in column_widths:
+        if header_widths[counter] > n:
+            column_widths[counter] = header_widths[counter]
+        counter = counter + 1
+    #
+    # create the table node
+    table_node = nodes.table()      # OK
+
+    # amount of columns in a variable
+    columns_number = len(report_columns)
+
+    # Create a tgroup node to define the table structure:
+    table_group_node = nodes.tgroup(cols=columns_number)
+    table_node += table_group_node
+
+    # Create colspec nodes to define column specifications
+    # syntax "nodes.colspec(colwidth=1)"
+    colspec_nodes = []
+    for c_width in column_widths:
+        nodes.colspec(colwidth=c_width)
+        colspec_nodes.append(nodes.colspec(colwidth=c_width))
+    table_group_node += colspec_nodes
+
+    # Create the thead node and add it to the table
+    table_head_node = nodes.thead()
+    table_group_node += table_head_node
+
+    # Create the tbody node and add it to the table
+    table_body_node = nodes.tbody()
+    table_group_node += table_body_node
+
+    # Create the header cells and add them to the header row
+    header_row = nodes.row()
+    for c_header in columns:
+        header_row += nodes.entry('',nodes.paragraph(text=c_header))
+
+    table_head_node += header_row
+
+    # Create rows of data cells
+    for index, row in df_transposed.iterrows():
+        data_row = nodes.row()
+        for value in row.values:
+            data_row += nodes.entry('', nodes.paragraph(text=str(value)))
+        table_body_node += data_row
+
+    print(table_node.pformat())
+    return table_node
+
 def create_rst_table(dataset):
     # if report_columns is not defined or empty, then it will display all columns.
     report_columns = []
@@ -175,26 +257,13 @@ def _make_data_table_for_requested_labels(requested_labels, document_to_filtered
     output_format = 'publish_string'
     output_format = 'html'
 
+    table_node_content = create_table_node(document_to_filtered_data_mapping)
+
     rst_content = create_rst_table(document_to_filtered_data_mapping)
-    html_content = core.publish_parts(rst_content, writer_name='html')
-    html_content_body = html_content['html_body']
+    content_html = core.publish_parts(rst_content, writer_name='html')
+    content_html_body = content_html['html_body']
 
-    content_doctree = core.publish_doctree(source=rst_content)
-# publish_doctree generates docutils.node.document
-
-
-    # not sure about publisher
-    publisher = core.Publisher()
-    publisher.set_writer = 'html'
-    publisher.writer = 'html'
-    publisher.source = html_content_body
-    #publisher.writer.
-
-    #content_published = core.publish_doctree(html_content_body)
-
-    return (html_content_body)
-
-
+    return (table_node_content)
 
 
 def replace_label_request_nodes_with_doc_refs(app, doctree, docname):  # doctree-resolved | event 14
@@ -205,11 +274,12 @@ def replace_label_request_nodes_with_doc_refs(app, doctree, docname):  # doctree
 
     for label_request_placeholder_node in all_label_request_nodes:
         requested_labels = label_request_placeholder_node.requested_labels
-        data_table_nodes = _make_data_table_for_requested_labels(
-            requested_labels,
-            document_to_filtered_data_mapping,
-            label_to_document_mapping,
-        )
+        data_table_nodes = create_table_node(document_to_filtered_data_mapping)
+#        data_table_nodes = _make_data_table_for_requested_labels(
+#            requested_labels,
+#            document_to_filtered_data_mapping,
+#            label_to_document_mapping,
+#        )
         label_request_placeholder_node.replace_self(data_table_nodes)
 
 def event_04_env_before_read_docs(app, env, docnames):
