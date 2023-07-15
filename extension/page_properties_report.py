@@ -118,12 +118,9 @@ def create_table_node(dataset):
     # turning my_title into links to the respective doc
     for label,content in df.items():
         content_name = content['my_title']
-        content_link = f"`{content_name}`_"
+    #    content_link = f"`{content_name}`_"
         content_label = f"{label}.html"
-        #df_transposed['my_title'] = df_transposed['my_title'].replace([content_name],[content_link])
-        footer_links += f".. _{content_name}: {content_label}\n"
-        #for html but it does NOT WORK
-        #df_transposed['my_title'] = df_transposed['my_title'].replace([content_name],"<a href=" + content_label + ">" + content_link + "</a>")
+    #    footer_links += f".. _{content_name}: {content_label}\n"
         df_transposed['my_title'] = f'`{content_name}`_'
         df_transposed['my_link'] = df_transposed.index + ".html"
 
@@ -173,12 +170,32 @@ def create_table_node(dataset):
 
     table_head_node += header_row
 
-    # Create rows of data cells
     for index, row in df_transposed.iterrows():
         data_row = nodes.row()
         for value in row.values:
             data_row += nodes.entry('', nodes.paragraph(text=str(value)))
+        #table_body_node += data_row
+
+    # Create rows of data cells with links
+
+    for _, row in df_transposed.iterrows():
+        data_row = nodes.row()
+        link_node = nodes.reference('', '', internal=False, refuri=row['my_link'])
+
+        for column, value in row.items():
+            if column == 'my_link':
+                continue
+            if column == 'my_title':
+                reference_node = nodes.reference('', '')
+                reference_node['refname'] = value
+                reference_node['refuri'] = row['my_link']
+                data_cell = nodes.entry()
+                data_cell.append(reference_node)
+            else:
+                data_cell = nodes.entry('', nodes.paragraph(text=str(value)))
+            data_row += data_cell
         table_body_node += data_row
+
 
     print(table_node.pformat())
     return table_node
