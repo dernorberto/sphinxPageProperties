@@ -114,15 +114,15 @@ def create_table_node(dataset):
         df_transposed = df_transposed.loc[:,report_columns]
     # Write as rst list-table
     # footer_links will contain the refs to the rst links used in the table
-    footer_links = f"\n"
+#    footer_links = f"\n"
     # turning my_title into links to the respective doc
-    for label,content in df.items():
-        content_name = content['my_title']
-    #    content_link = f"`{content_name}`_"
-        content_label = f"{label}.html"
-    #    footer_links += f".. _{content_name}: {content_label}\n"
-        df_transposed['my_title'] = f'`{content_name}`_'
-        df_transposed['my_link'] = df_transposed.index + ".html"
+#    for label,content in df.items():
+#        content_name = content['my_title']
+#    #    content_link = f"`{content_name}`_"
+#        content_label = f"{label}.html"
+#    #    footer_links += f".. _{content_name}: {content_label}\n"
+#        df_transposed['my_title'] = f'`{content_name}`_'
+#        df_transposed['my_link'] = df_transposed.index + ".html"
 
     # Get the column names and data from the DataFrame
     columns = df_transposed.columns.tolist()
@@ -170,32 +170,24 @@ def create_table_node(dataset):
 
     table_head_node += header_row
 
-    for index, row in df_transposed.iterrows():
-        data_row = nodes.row()
-        for value in row.values:
-            data_row += nodes.entry('', nodes.paragraph(text=str(value)))
-        #table_body_node += data_row
-
     # Create rows of data cells with links
 
-    for _, row in df_transposed.iterrows():
-        data_row = nodes.row()
-        link_node = nodes.reference('', '', internal=False, refuri=row['my_link'])
+    for index, row in df_transposed.iterrows():
+        row_node = nodes.row()
+        table_body_node += row_node
+        # Add the link to the file
+        entry_node = nodes.entry()
+        row_node += entry_node
+        text_node = nodes.paragraph()
+        reference_node = nodes.reference(refuri=index + ".html",text=index)
+        text_node += reference_node
+        entry_node += text_node
 
-        for column, value in row.items():
-            if column == 'my_link':
-                continue
-            if column == 'my_title':
-                reference_node = nodes.reference('', '')
-                reference_node['refname'] = value
-                reference_node['refuri'] = row['my_link']
-                data_cell = nodes.entry()
-                data_cell.append(reference_node)
-            else:
-                data_cell = nodes.entry('', nodes.paragraph(text=str(value)))
-            data_row += data_cell
-        table_body_node += data_row
-
+        # Add the rest of the columns
+        for item in row[1:]:
+            entry_node = nodes.entry()
+            row_node += entry_node
+            entry_node += nodes.paragraph(text=str(item))
 
     print(table_node.pformat())
     return table_node

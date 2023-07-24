@@ -18,7 +18,7 @@ Hello world, I am the parent page, with additional meta.
 
 The page properties report should be under this line:
 
-.. pagepropertiesreport:: it-policy
+.. page_properties_report:: it-policy
 
 Chapter 1
 ---------

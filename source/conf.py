@@ -90,3 +90,5 @@ html_static_path = ['_static']
 #tags_create_badges = True
 #tags_badge_colors = "light"
 
+
+nitpicky = True
