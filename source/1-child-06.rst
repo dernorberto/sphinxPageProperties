@@ -7,7 +7,7 @@
     :my_status: inprogress
     :my_pagetype: reportChild
 
-.. tags:: typeReportChild, PageProperties
-
 PPR CHILD 06
 ===============================
+
+This is a page using the ".. meta::" directive, as an example that it does not work with the extension.

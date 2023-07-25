@@ -5,8 +5,6 @@
 :my_title: My Page Properties-like parent page
 :my_pagetype: reportParent
 
-.. tags:: typeReportParent, PageProperties
-
 Page Properties Report PARENT
 =============================
 
@@ -18,7 +16,7 @@ Hello world, I am the parent page, with additional meta.
 
 The page properties report should be under this line:
 
-.. page_properties_report:: it-policy
+.. page_properties_report:: it-policy,child
 
 Chapter 1
 ---------

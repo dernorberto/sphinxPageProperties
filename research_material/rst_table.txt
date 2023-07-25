@@ -1,0 +1,24 @@
+.. list-table:: Page Properties Report
+    :widths: 13 9 15 12
+    :header-rows: 1
+
+    * - my_title
+      - my_status
+      - my_author
+      - last_changed
+    * - `Child Page 01`_
+      - draft
+      - Norberto Soares
+      - 14.05.2023
+    * - `Child Page 03`_
+      - complete
+      - Norberto Soares
+      - 12.04.2023
+    * - `Child Page 05`_
+      - outdated
+      - Michael Jordan
+      - 28.05.2023
+
+.. _Child Page 01: 1-child-01.html
+.. _Child Page 03: 1-child-03.html
+.. _Child Page 05: 1-child-05.html

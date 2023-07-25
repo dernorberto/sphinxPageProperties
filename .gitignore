@@ -5,3 +5,5 @@ project/_build/doctrees/
 project/_build/html/
 project/_build/
 project/_tags/
+build/
+*/__pycache__

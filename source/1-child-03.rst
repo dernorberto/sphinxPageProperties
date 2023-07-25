@@ -6,8 +6,6 @@
 :my_status: complete
 :my_pagetype: reportChild
 
-.. tags:: typeReportChild, PageProperties
-
 PPR CHILD 03
 ===============================
 

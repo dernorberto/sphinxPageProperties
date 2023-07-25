@@ -9,3 +9,5 @@
 
 PPR CHILD 04
 ===============================
+
+This is a page using the ".. meta::" directive, as an example that it does not work with the extension.
