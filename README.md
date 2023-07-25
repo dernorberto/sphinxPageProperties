@@ -6,78 +6,69 @@
 - [x] Use only Sphinx API to parse content
 - [ ] Turn the script into a Sphinx extension
 - [x] Replace RST grid table with list-table
-- [ ] Test using `.. meta::` instead of field lists
+- [x] Test using `.. meta::` instead of field lists
+- [ ] Select columns to display as an argument of the directive
+- [ ] Display the `my_labels` (or equivalent) field list at bottom of each page.
 
 ### Status
 
-* It generates an RST grid-table based on the field lists from different rst files
-* The items in the `my_title` column will be linked to the corresponding HTML file
-* v3: `field-finder.py <label> <label> etc...`: using sphinx to get field lists
-* v2: `tag-finder.py`: using docutils to get sphinx-tags
-* v1: `field-finder-docutils.py`: using docutils to get field lists
+* First working concept is ready.
+* Clone repo, create venv, install requirements, etc...
+* Try with the sample files (`0-report.rst, 1-child-01.rst, etc...`).
+* In the file `0-report.rst` set the argument of the directive `.. page_properties_report:: arg1[,arg2,arg3]`
+* run Sphinx
 
 ### Introduction
 
 * I use Page Properties & Page Properties Report extensively Confluence.
-* While moving some of the documents to Sphinx, I want the same feature.
+* While moving some of the documents to Sphinx, I wanted the same feature.
 * I want it to not have to depend on any additional extension.
 
-### Some notes about:
+### Some research notes:
 
-* field-lists:
-  * Initially used docutils for parsing, but it was too complex.
-  * Currently using Sphinx `<app>.build(False)` and then `<app>.env.metadata` to parse.
-* `.. meta::`:
-  * I was not able to easily parse this information.
-  * It was not part of the docutils doctree.
-* `.. tags::`:
-  * I ended up not wanting to rely on an extension, although it replicates the Confluence labels feature nicely.
-
-### HOWTO
-
-* From the `project` folder, launch `python3 tag-finder.py <label1> <label2>...`
-* It will output a file `page_properties_table.rst` that can then be rendered with `make html`
+* How to store (meta)data that I want to use like in a Page Properties macro?
+  * field-lists:
+    * After some initial issues, these are the simplest to use
+      * + no external extension required
+      * + part of the docutils rst syntax
+  * `.. meta::`:
+    * - It requires the meta extension
+    * - I was not able to easily parse this information.
+    * - It was not part of the docutils doctree.
+  * `.. tags::`:
+    * - It requires the tags extension.
+    * + Displays these as tags on the pages.
+* Using the manual tag-finder scripts
+  * From the `project` folder, launch `python3 tag-finder.py <label1> <label2>...`
+  * It will output a file `page_properties_table.rst` that can then be rendered with `make html`
 
 #### Input & Outcome
 
-* Input
+* Files:
   * All the ReST files in the current sphinx env.
   * Documents whose field lists match:
     * `page_type` set to `reportChild`
-    * `labels` matching the arguments
+    * `my_labels` matching the arguments
   * the structure is similar to:
-
+* Document containing report:
+```
+...
+.. page_properties_report:: it-policy,child
+...
+```
+  * the arg can be >1 string, comma-separated and without spaces.
+* Pages collected as children for the report with matching `my_labels`
 ```
 :my_author: Norberto Soares
 :my_title: Child Page 02
 :author: Norberto Soares
-:my_labels: sphinx, meta, child
+:my_labels: sphinx, meta, child, it-policy
 :last_changed: 14.04.2023
 :my_status: inprogress
-:my_pagetype: reportChild-NOT
-
-.. tags:: typeReportChild, PageProperties
+:my_pagetype: reportChild
 
 PPR CHILD 02
 ===============================
-```
-
-
-* Output
-```
-Page Properties Table
-===========================
-
-+------------------+-----------------+-----------------+---------------------+--------------+
-|     my_title     |  my_pagetype    |     my_author   |         tags        | last_changed |
-+==================+=================+=================+=====================+==============+
-| `Child Page 03`_ | reportChild     | Norberto Soares | sphinx, meta, child | 14.04.2023   |
-+------------------+-----------------+-----------------+---------------------+--------------+
-| `Child Page 02`_ | reportChild-NOT | Norberto Soares | sphinx, meta, child | 14.04.2023   |
-+------------------+-----------------+-----------------+---------------------+--------------+
-
-.. _Child Page 03: 1-child-03.html
-.. _Child Page 02: 1-child-02.html
 ```
 
 
