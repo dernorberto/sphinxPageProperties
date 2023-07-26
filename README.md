@@ -15,7 +15,7 @@
 * First working concept is ready.
 * Clone repo, create venv, install requirements, etc...
 * Try with the sample files (`0-report.rst, 1-child-01.rst, etc...`).
-* In the file `0-report.rst` set the argument of the directive `.. page_properties_report:: arg1[,arg2,arg3]`
+* In the file `0-report.rst` set the argument of the directive `.. page_properties_report:: label1[,label2,etc]`
 * run Sphinx
 
 ### Introduction
