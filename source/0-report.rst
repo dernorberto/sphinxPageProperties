@@ -1,9 +1,11 @@
-:author: Norberto Soares
-:my_author: Norberto Soares
-:my_labels: sphinx, meta, report
-:last_changed: 14.04.2023
-:my_title: My Page Properties-like parent page
-:my_pagetype: reportParent
+:doc_author: Norberto Soares
+:doc_last_changed: 14.04.2023
+:doc_title: My Page Properties-like parent page
+:conf_pagetype: report
+:conf_pageid: 1041137738
+:conf_parent: 745930778
+:conf_labels: sphinx, meta, report
+
 
 Page Properties Report PARENT
 =============================
@@ -28,3 +30,6 @@ Chapter 2
 
 ipso facto...
 
+....
+
+**Page labels**: sphinx, meta, report

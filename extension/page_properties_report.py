@@ -3,9 +3,6 @@ from sphinx.util.docutils import nodes
 from sphinx.util.docutils import SphinxDirective
 from sphinx.application import Sphinx
 import pandas as pd
-from docutils import core
-from docutils.core import publish_doctree, publish_parts
-from docutils.parsers.rst import Directive, directives, roles, Parser
 
 """_summary_
         Key-Value pairs are added as field_names to documents, which can then be summarized
@@ -13,11 +10,32 @@ from docutils.parsers.rst import Directive, directives, roles, Parser
 
 """
 
-REPORT_FIELD_PAGETYPE = 'reportChild'
-report_field_labels = []
+fieldname_dict = {
+    'fieldname_pagetype' : 'conf_pagetype',
+    'fieldname_labels' : 'conf_labels',
+    'fieldname_pageid' : 'conf_pageid',
+    'fieldname_parent' : 'conf_parent'
+    }       # dict with field names
+
+fieldname_mapping = {
+    'conf_labels': 'Labels',
+    'conf_pageid': 'Confluence Page ID',
+    'conf_parent': 'Confluence Parent Page ID',
+    'doc_author': 'Author',
+    'doc_title': 'Page Title',
+    'doc_last_changed': "Last changed",
+    'doc_status': "Status"
+}
+
+report_child_pagetype = 'reportchild'       # value of pagetype for a report child page
+report_field_labels = []        # the labels we are looking for
+report_columns = []             # the columns we want in our report
 
 # my very simple and initial attempt at setting up a node to store data
 class StorageNode(nodes.Element):
+    pass
+
+class MyParagraphNode(nodes.General, nodes.Element):
     pass
 
 class LabelRequestPlaceholderNode(nodes.General, nodes.Element):
@@ -32,6 +50,7 @@ class LabelRequestPlaceholderNode(nodes.General, nodes.Element):
 class PagePropertiesReport(SphinxDirective):
     has_content = True
     required_arguments = 1
+    optional_arguments = 1
 
     def run(self):
         # hacky way to split the argument if comma-separated without a space
@@ -40,6 +59,8 @@ class PagePropertiesReport(SphinxDirective):
             globals()["report_field_labels"] = my_arguments.split(',')
         else:
             globals()["report_field_labels"] = (self.arguments)
+        if self.options:
+            globals()['report_columns'] = self.options.get('report_columns', None)
 
         requested_field_labels = report_field_labels
 
@@ -58,15 +79,15 @@ def get_docinfo_from_env(app, env):  # env-updated | event 10
     field_data = {}
 
     for document_name, field_metadata in env.metadata.items():
-        page_type = field_metadata.get('my_pagetype', '')
-        field_list = field_metadata.get('my_labels', [])
+        page_type = field_metadata.get(fieldname_dict['fieldname_pagetype'], '')
+        field_list = field_metadata.get(fieldname_dict['fieldname_labels'], [])
         if field_list:
-            field_list = field_list.split(', ')
+            field_list = field_list.replace(' ','').split(',')      # create a list
 
         if not field_list:
             continue
 
-        if REPORT_FIELD_PAGETYPE != page_type:
+        if report_child_pagetype != page_type:
             continue
 
         required_element_missing = any(
@@ -97,7 +118,7 @@ def get_docinfo_from_env(app, env):  # env-updated | event 10
 def create_table_node(dataset):
     # if report_columns is not defined or empty, then it will display all columns.
     report_columns = []
-    report_columns = ['my_title','my_status','my_author','last_changed']
+    report_columns = ['doc_title','doc_status','doc_author','doc_last_changed']
     # Create a Pandas DataFrame from the field data
     df = pd.DataFrame(dataset)
     # Transposing the table
@@ -105,6 +126,8 @@ def create_table_node(dataset):
     # choosing which fields to keep in the table
     if "report_columns" in locals() or "report_columns" != []:
         df_transposed = df_transposed.loc[:,report_columns]
+    ## replace the column headers with the values from dict "fieldname_mapping"
+    df_transposed.rename(columns=fieldname_mapping, inplace=True)
     # Get the column names and data from the DataFrame
     columns = df_transposed.columns.tolist()
     data = df_transposed.values.tolist()
