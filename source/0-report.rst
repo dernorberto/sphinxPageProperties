@@ -19,6 +19,8 @@ Hello world, I am the parent page, with additional meta.
 The page properties report should be under this line:
 
 .. page_properties_report:: it-policy,child
+   doc_author,doc_title,doc_last_changed,conf_pageid
+
 
 Chapter 1
 ---------
@@ -29,7 +31,3 @@ Chapter 2
 ---------
 
 ipso facto...
-
-....
-
-**Page labels**: sphinx, meta, report

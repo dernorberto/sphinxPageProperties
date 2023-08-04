@@ -1,0 +1,10 @@
+{% extends "!page.html" %}
+
+{% block body %}
+  {{ super() }}
+  <hr>
+  <div class="field-lists">
+    <p><b>Labels:</b> {{ meta['conf_labels'] }}</p>
+  </div>
+{% endblock %}
+

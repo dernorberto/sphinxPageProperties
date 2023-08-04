@@ -21,10 +21,17 @@ fieldname_mapping = {
     'conf_labels': 'Labels',
     'conf_pageid': 'Confluence Page ID',
     'conf_parent': 'Confluence Parent Page ID',
+    'conf_pagetype': "Confluence Page type",
     'doc_author': 'Author',
-    'doc_title': 'Page Title',
+    'doc_owner': 'Owner',
+    'doc_title': 'Title',
     'doc_last_changed': "Last changed",
-    'doc_status': "Status"
+    'doc_status': "Status",
+    'doc_review': "Review",
+    'doc_review_by': "Review by",
+    'doc_review_date': "Review date",
+    'doc_version': "Version",
+    'doc_lang': "Language"
 }
 
 report_child_pagetype = 'reportchild'       # value of pagetype for a report child page
@@ -53,14 +60,28 @@ class PagePropertiesReport(SphinxDirective):
     optional_arguments = 1
 
     def run(self):
+        arg_labels = self.arguments[0]
+        arg_columns = self.arguments[1] if len(self.arguments) > 1 else None
         # hacky way to split the argument if comma-separated without a space
-        my_arguments = str(self.arguments[0])
+        arg_labels = str(self.arguments[0])
         if "," in self.arguments[0]:
-            globals()["report_field_labels"] = my_arguments.split(',')
+            globals()["report_field_labels"] = arg_labels.split(',')
         else:
             globals()["report_field_labels"] = (self.arguments)
-        if self.options:
-            globals()['report_columns'] = self.options.get('report_columns', None)
+
+        if len(self.arguments) > 1:
+            if "," in arg_columns:
+                globals()["report_columns"] = arg_columns.split(',')
+            else:
+                globals()['report_columns'] = arg_columns
+
+        # making sure that the first column is 'doc_title'
+        if 'doc_title' not in globals()['report_columns']:
+            globals()['report_columns'].insert(0, 'doc_title')
+        elif globals()['report_columns'].index('doc_title') != 0:
+            item_to_move = globals()['report_columns'].index('doc_title')
+            globals()['report_columns'].pop(item_to_move)
+            globals()['report_columns'].insert(0, 'doc_title')
 
         requested_field_labels = report_field_labels
 
@@ -105,7 +126,7 @@ def get_docinfo_from_env(app, env):  # env-updated | event 10
         (label.strip(), doc_name)
         # for doc_name, doc_meta in env.metadata.items()
         for doc_name, doc_meta in field_data.items()
-        for label in doc_meta.get('my_labels', '').split(',')
+        for label in doc_meta.get(fieldname_dict['fieldname_labels'], '').split(',')
     }
     label_to_document_mapping = defaultdict(set)   # label -> document names set| example data: {'l1': {'doc3'}, 'l2': {'doc1', 'doc3'}}
     # label_to_document_mapping['l1'].add('doc1')  # {'l1': {'doc1'}}
@@ -117,15 +138,17 @@ def get_docinfo_from_env(app, env):  # env-updated | event 10
 
 def create_table_node(dataset):
     # if report_columns is not defined or empty, then it will display all columns.
-    report_columns = []
-    report_columns = ['doc_title','doc_status','doc_author','doc_last_changed']
+#    report_columns = []
+#    report_columns = ['doc_title','doc_status','doc_author','doc_last_changed']
+
+
     # Create a Pandas DataFrame from the field data
     df = pd.DataFrame(dataset)
     # Transposing the table
     df_transposed = df.T
     # choosing which fields to keep in the table
-    if "report_columns" in locals() or "report_columns" != []:
-        df_transposed = df_transposed.loc[:,report_columns]
+    if "report_columns" in globals() or globals()['report_columns'] != []:
+        df_transposed = df_transposed.loc[:,globals()['report_columns']]
     ## replace the column headers with the values from dict "fieldname_mapping"
     df_transposed.rename(columns=fieldname_mapping, inplace=True)
     # Get the column names and data from the DataFrame
@@ -143,7 +166,7 @@ def create_table_node(dataset):
     # create the table node
     table_node = nodes.table()      # OK
     # amount of columns in a variable
-    columns_number = len(report_columns)
+    columns_number = len(globals()['report_columns'])
     # Create a tgroup node to define the table structure:
     table_group_node = nodes.tgroup(cols=columns_number)
     table_node += table_group_node
@@ -215,6 +238,7 @@ def replace_label_request_nodes_with_doc_refs(app, doctree, docname):  # doctree
 #        )
 
         label_request_placeholder_node.replace_self(data_table_nodes)
+
 
 def event_04_env_before_read_docs(app, env, docnames):
     # docname: {docnames} + Event env_before_read_docs

@@ -30,10 +30,21 @@ exclude_patterns = [
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-#html_theme = 'alabaster'
+html_theme = 'alabaster'
 #html_theme = 'pydata_sphinx_theme'
-html_theme = 'classic'
+#html_theme = 'classic'
 #html_theme = 'sphinx_rtd_theme'
+
+html_theme_options = {
+    "github_user": "optile",
+    "github_repo": "tech-docs",
+    "github_button": True,
+    "github_banner": True,
+    "extra_nav_links": {
+        "GitHub": "https://github.com/optile/tech-docs/",
+    },
+}
+
 html_theme_options = {              # https://alabaster.readthedocs.io/en/latest/customization.html#theme-options
 #    'logo': 'logo.png',
 #    'github_user': 'sphinx-doc',
