@@ -30,7 +30,7 @@ pyspellchecker==0.7.2
 python-dateutil==2.8.2
 pytz==2023.3
 PyYAML==6.0
-requests==2.31.0
+requests==2.32.0
 six==1.16.0
 snowballstemmer==2.2.0
 Sphinx==6.2.1
