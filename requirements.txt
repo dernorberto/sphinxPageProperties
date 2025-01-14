@@ -47,4 +47,4 @@ tornado==6.4.1
 typeguard==3.0.2
 tzdata==2023.3
 urllib3==2.2.2
-virtualenv==20.23.0
+virtualenv==20.26.6
