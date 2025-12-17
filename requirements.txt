@@ -46,5 +46,5 @@ sphinxcontrib-serializinghtml==1.1.5
 tornado==6.5.1
 typeguard==3.0.2
 tzdata==2023.3
-urllib3==2.2.2
+urllib3==2.6.0
 virtualenv==20.26.6
